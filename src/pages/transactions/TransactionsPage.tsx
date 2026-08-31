@@ -158,13 +158,13 @@ export default function TransactionsPage() {
         <div className="grid grid-cols-3 gap-3">
           <div className="rounded-xl border p-3">
             <p className="text-xs text-muted-foreground">支出</p>
-            <p className="truncate text-base font-semibold text-destructive sm:text-lg">
+            <p className="truncate text-base font-semibold text-green-600 sm:text-lg">
               -{formatMoney(monthExpense)}
             </p>
           </div>
           <div className="rounded-xl border p-3">
             <p className="text-xs text-muted-foreground">收入</p>
-            <p className="truncate text-base font-semibold text-emerald-600 sm:text-lg">
+            <p className="truncate text-base font-semibold text-red-600 sm:text-lg">
               +{formatMoney(monthIncome)}
             </p>
           </div>
@@ -207,8 +207,8 @@ export default function TransactionsPage() {
                   {format(new Date(`${date}T00:00:00`), 'M月d日 EEEE', { locale: zhCN })}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {dayIncome > 0 && <span className="text-emerald-600">收 {formatMoney(dayIncome)} </span>}
-                  {dayExpense > 0 && <span className="text-destructive">支 {formatMoney(dayExpense)}</span>}
+                  {dayIncome > 0 && <span className="text-red-600">收 {formatMoney(dayIncome)} </span>}
+                  {dayExpense > 0 && <span className="text-green-600">支 {formatMoney(dayExpense)}</span>}
                 </p>
               </div>
               <div className="overflow-hidden rounded-xl border bg-card">
@@ -263,7 +263,7 @@ export default function TransactionsPage() {
                         <p
                           className={cn(
                             'text-sm font-semibold',
-                            tx.type === 'expense' ? 'text-destructive' : 'text-emerald-600',
+                            tx.type === 'expense' ? 'text-green-600' : 'text-red-600',
                           )}
                         >
                           {tx.type === 'expense' ? '-' : '+'}

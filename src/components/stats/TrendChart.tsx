@@ -10,8 +10,8 @@ import {
 import { useMonthlyTrend } from '@/hooks/useStats'
 
 const chartConfig = {
-  expense: { label: '支出', color: '#ef4444' },
-  income: { label: '收入', color: '#10b981' },
+  expense: { label: '支出', color: '#16a34a' },
+  income: { label: '收入', color: '#dc2626' },
 } satisfies ChartConfig
 
 /** 近 N 个月收支趋势柱状图 */

@@ -60,7 +60,7 @@ export default function DashboardPage() {
             <CardDescription>本月支出</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-destructive">
+            <p className="text-2xl font-bold text-green-600">
               -{isLoading ? '…' : formatMoney(monthExpense)}
             </p>
           </CardContent>
@@ -70,7 +70,7 @@ export default function DashboardPage() {
             <CardDescription>本月收入</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-emerald-600">
+            <p className="text-2xl font-bold text-red-600">
               +{isLoading ? '…' : formatMoney(monthIncome)}
             </p>
           </CardContent>
@@ -149,7 +149,7 @@ export default function DashboardPage() {
                       <p
                         className={cn(
                           'text-sm font-semibold',
-                          tx.type === 'expense' ? 'text-destructive' : 'text-emerald-600',
+                          tx.type === 'expense' ? 'text-green-600' : 'text-red-600',
                         )}
                       >
                         {tx.type === 'expense' ? '-' : '+'}

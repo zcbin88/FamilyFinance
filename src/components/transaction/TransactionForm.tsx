@@ -100,8 +100,8 @@ export default function TransactionForm({
               'rounded-lg py-2 text-sm font-medium transition-colors',
               type === t
                 ? t === 'expense'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-emerald-600 text-white'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-red-600 text-white'
                 : 'text-muted-foreground hover:text-foreground',
             )}
           >

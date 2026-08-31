@@ -89,7 +89,7 @@ export default function StatisticsPage() {
             <CardDescription>支出</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="truncate text-lg font-bold text-destructive sm:text-xl">
+            <p className="truncate text-lg font-bold text-green-600 sm:text-xl">
               -{isLoading ? '…' : formatMoney(monthExpense)}
             </p>
           </CardContent>
@@ -99,7 +99,7 @@ export default function StatisticsPage() {
             <CardDescription>收入</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="truncate text-lg font-bold text-emerald-600 sm:text-xl">
+            <p className="truncate text-lg font-bold text-red-600 sm:text-xl">
               +{isLoading ? '…' : formatMoney(monthIncome)}
             </p>
           </CardContent>
