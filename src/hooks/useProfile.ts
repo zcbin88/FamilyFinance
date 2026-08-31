@@ -1,16 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useAuth } from '@/context/AuthProvider'
 import { supabase } from '@/lib/supabase'
 import type { Profile } from '@/types/database'
 
 export const profileKeys = {
-  current: () => ['profile', 'current'] as const,
+  current: (userId?: string) => ['profile', 'current', userId ?? 'anon'] as const,
 }
 
 /** 当前用户资料 */
 export function useProfile(enabled = true) {
+  const { user, loading } = useAuth()
   return useQuery({
-    queryKey: profileKeys.current(),
-    enabled,
+    queryKey: profileKeys.current(user?.id),
+    enabled: enabled && !loading && !!user,
     queryFn: async () => {
       const {
         data: { user },

@@ -1,17 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useAuth } from '@/context/AuthProvider'
 import { supabase } from '@/lib/supabase'
 import type { Family, FamilyMember, Profile } from '@/types/database'
 
 export const familyKeys = {
   all: ['family'] as const,
-  current: () => [...familyKeys.all, 'current'] as const,
+  current: (userId?: string) => [...familyKeys.all, 'current', userId ?? 'anon'] as const,
   members: (familyId: string) => [...familyKeys.all, 'members', familyId] as const,
 }
 
-/** 当前用户的家庭（V1 单家庭：取第一条成员关系） */
+/** 当前用户的家庭（V1 单家庭：取第一条成员关系）
+ * 仅在登录后查询，避免匿名查询污染缓存（LedgerProvider 全局挂载） */
 export function useCurrentFamily() {
+  const { user, loading } = useAuth()
   return useQuery({
-    queryKey: familyKeys.current(),
+    queryKey: familyKeys.current(user?.id),
+    enabled: !loading && !!user,
     queryFn: async () => {
       const { data: membership, error: mErr } = await supabase
         .from('family_members')

@@ -10,7 +10,6 @@ import {
   Wallet,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { LedgerProvider } from '@/context/LedgerProvider'
 import { useAuth } from '@/context/AuthProvider'
 import { useProfile } from '@/hooks/useProfile'
 import { cn } from '@/lib/utils'
@@ -175,9 +174,5 @@ function LayoutInner() {
 }
 
 export default function AppLayout() {
-  return (
-    <LedgerProvider>
-      <LayoutInner />
-    </LedgerProvider>
-  )
+  return <LayoutInner />
 }
