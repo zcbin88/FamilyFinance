@@ -70,6 +70,15 @@ function LayoutInner() {
           <LedgerSwitcher />
         </div>
 
+        <Button
+          className="mb-6 w-full justify-center gap-2"
+          size="lg"
+          onClick={() => navigate('/transactions/new')}
+        >
+          <Plus className="size-5" />
+          记一笔
+        </Button>
+
         <NavItems className="flex-1" />
 
         <div className="flex items-center justify-between gap-2 border-t pt-4">
