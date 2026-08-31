@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { Link } from 'react-router'
 import { toast } from 'sonner'
-import { Copy, Crown, Users } from 'lucide-react'
+import { ChevronRight, Copy, Crown, Users } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -14,14 +15,17 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import LedgerManager from '@/components/ledger/LedgerManager'
 import CategoryManager from '@/components/category/CategoryManager'
-import ProfileCard from '@/components/profile/ProfileCard'
+import { useAuth } from '@/context/AuthProvider'
 import { useCurrentFamily, useFamilyMembers } from '@/hooks/useFamily'
+import { useProfile } from '@/hooks/useProfile'
 
 function initials(name: string) {
   return name.trim().slice(0, 2).toUpperCase()
 }
 
 export default function SettingsPage() {
+  const { user } = useAuth()
+  const { data: profile } = useProfile(!!user)
   const { data: family, isLoading: familyLoading } = useCurrentFamily()
   const { data: members, isLoading: membersLoading } = useFamilyMembers(family?.id)
   const [copied, setCopied] = useState(false)
@@ -45,8 +49,30 @@ export default function SettingsPage() {
         <p className="text-sm text-muted-foreground">个人信息、家庭、账本、分类管理</p>
       </div>
 
-      {/* 个人信息（不依赖家庭，始终可用） */}
-      <ProfileCard />
+      {/* 账号入口（点击进入个人资料页） */}
+      <Card>
+        <CardHeader>
+          <CardTitle>账号</CardTitle>
+          <CardDescription>个人资料、退出登录</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Link
+            to="/settings/profile"
+            className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-muted"
+          >
+            <Avatar className="size-11">
+              <AvatarFallback className="text-sm">
+                {profile?.name ? initials(profile.name) : '?'}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium">{profile?.name || '未设置昵称'}</p>
+              <p className="truncate text-sm text-muted-foreground">{user?.email}</p>
+            </div>
+            <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
+          </Link>
+        </CardContent>
+      </Card>
 
       {familyLoading ? (
         <div className="space-y-6">

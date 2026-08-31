@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { LogOut } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -27,11 +27,14 @@ export default function ProfileCard() {
   const updateProfile = useUpdateProfile()
 
   const [name, setName] = useState('')
+  const [lastProfileName, setLastProfileName] = useState<string | null>(null)
   const [logoutOpen, setLogoutOpen] = useState(false)
 
-  useEffect(() => {
-    if (profile) setName(profile.name)
-  }, [profile])
+  // 资料异步加载后同步到输入框（render 期间调整状态模式）
+  if (profile && profile.name !== lastProfileName) {
+    setLastProfileName(profile.name)
+    setName(profile.name)
+  }
 
   const unchanged = name.trim() === (profile?.name ?? '')
 

@@ -9,6 +9,7 @@ import RegisterPage from '@/pages/auth/RegisterPage'
 import DashboardPage from '@/pages/dashboard/DashboardPage'
 import OnboardingPage from '@/pages/onboarding/OnboardingPage'
 import SettingsPage from '@/pages/settings/SettingsPage'
+import ProfilePage from '@/pages/settings/ProfilePage'
 import StatisticsPage from '@/pages/statistics/StatisticsPage'
 import TransactionsPage from '@/pages/transactions/TransactionsPage'
 import TransactionFormPage from '@/pages/transactions/TransactionFormPage'
@@ -67,6 +68,9 @@ export default function App() {
           <Route path="statistics" element={<StatisticsPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
+
+        {/* 账号信息不依赖家庭，可在无家庭时访问 */}
+        <Route path="settings/profile" element={<ProfilePage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
