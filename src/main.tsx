@@ -7,6 +7,10 @@ import { Toaster } from 'sonner'
 import './index.css'
 import App from './App.tsx'
 import { AuthProvider } from '@/context/AuthProvider'
+import { registerSW } from 'virtual:pwa-register'
+
+// 注册 Service Worker（PWA：离线缓存 + 自动更新）
+registerSW({ immediate: true })
 
 const queryClient = new QueryClient({
   defaultOptions: {
