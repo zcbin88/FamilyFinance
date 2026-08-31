@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import LedgerManager from '@/components/ledger/LedgerManager'
 import { useCurrentFamily, useFamilyMembers } from '@/hooks/useFamily'
 
 function initials(name: string) {
@@ -136,13 +137,10 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
+      {/* 账本管理 */}
+      <LedgerManager />
+
       {/* 后续模块占位 */}
-      <Card>
-        <CardHeader>
-          <CardTitle>账本管理</CardTitle>
-          <CardDescription>M3 开发中：创建、切换、重命名账本</CardDescription>
-        </CardHeader>
-      </Card>
       <Card>
         <CardHeader>
           <CardTitle>分类管理</CardTitle>

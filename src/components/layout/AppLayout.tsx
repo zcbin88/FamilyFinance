@@ -8,9 +8,11 @@ import {
   Wallet,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { LedgerProvider } from '@/context/LedgerProvider'
 import { useAuth } from '@/context/AuthProvider'
 import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
+import LedgerSwitcher from '@/components/layout/LedgerSwitcher'
 
 const navItems = [
   { to: '/', label: '仪表盘', icon: LayoutDashboard, end: true },
@@ -44,7 +46,7 @@ function NavItems({ className }: { className?: string }) {
   )
 }
 
-export default function AppLayout() {
+function LayoutInner() {
   const { user } = useAuth()
 
   async function handleLogout() {
@@ -55,11 +57,15 @@ export default function AppLayout() {
     <div className="min-h-dvh bg-background">
       {/* 桌面端侧边栏 */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r bg-card px-4 py-6 md:flex">
-        <div className="mb-8 flex items-center gap-2 px-2">
+        <div className="mb-6 flex items-center gap-2 px-2">
           <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Wallet className="size-4" />
           </span>
           <span className="text-lg font-semibold">家庭账本</span>
+        </div>
+
+        <div className="mb-6">
+          <LedgerSwitcher />
         </div>
 
         <NavItems className="flex-1" />
@@ -76,9 +82,19 @@ export default function AppLayout() {
       </aside>
 
       {/* 主内容区 */}
-      <main className="px-4 pb-24 pt-6 md:ml-60 md:px-8 md:pb-8">
-        <Outlet />
-      </main>
+      <div className="md:ml-60">
+        {/* 移动端顶部：当前账本切换 */}
+        <header className="sticky top-0 z-20 flex items-center gap-3 border-b bg-background/90 px-4 py-3 backdrop-blur md:hidden">
+          <span className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <Wallet className="size-4" />
+          </span>
+          <LedgerSwitcher compact />
+        </header>
+
+        <main className="px-4 pb-24 pt-6 md:px-8 md:pb-8">
+          <Outlet />
+        </main>
+      </div>
 
       {/* 移动端底部导航 */}
       <nav className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t bg-card px-2 py-2 md:hidden">
@@ -100,5 +116,13 @@ export default function AppLayout() {
         ))}
       </nav>
     </div>
+  )
+}
+
+export default function AppLayout() {
+  return (
+    <LedgerProvider>
+      <LayoutInner />
+    </LedgerProvider>
   )
 }
