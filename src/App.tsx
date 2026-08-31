@@ -1,11 +1,13 @@
 import type { ReactNode } from 'react'
-import { Navigate, Route, Routes } from 'react-router'
+import { Navigate, Outlet, Route, Routes } from 'react-router'
 import { Loader2 } from 'lucide-react'
 import AppLayout from '@/components/layout/AppLayout'
 import { useAuth } from '@/context/AuthProvider'
+import { useCurrentFamily } from '@/hooks/useFamily'
 import LoginPage from '@/pages/auth/LoginPage'
 import RegisterPage from '@/pages/auth/RegisterPage'
 import DashboardPage from '@/pages/dashboard/DashboardPage'
+import OnboardingPage from '@/pages/onboarding/OnboardingPage'
 import SettingsPage from '@/pages/settings/SettingsPage'
 import StatisticsPage from '@/pages/statistics/StatisticsPage'
 import TransactionsPage from '@/pages/transactions/TransactionsPage'
@@ -26,11 +28,29 @@ function RequireAuth({ children }: { children: ReactNode }) {
   return children
 }
 
+/** 业务页面前提：已登录且有家庭；无家庭 → 引导页 */
+function FamilyGate() {
+  const { data: family, isLoading } = useCurrentFamily()
+
+  if (isLoading) return <FullPageLoading />
+  if (!family) return <Navigate to="/onboarding" replace />
+  return <Outlet />
+}
+
 export default function App() {
   return (
     <Routes>
       <Route path="/auth/login" element={<LoginPage />} />
       <Route path="/auth/register" element={<RegisterPage />} />
+
+      <Route
+        path="/onboarding"
+        element={
+          <RequireAuth>
+            <OnboardingPage />
+          </RequireAuth>
+        }
+      />
 
       <Route
         element={
@@ -39,10 +59,12 @@ export default function App() {
           </RequireAuth>
         }
       >
-        <Route index element={<DashboardPage />} />
-        <Route path="transactions" element={<TransactionsPage />} />
-        <Route path="statistics" element={<StatisticsPage />} />
-        <Route path="settings" element={<SettingsPage />} />
+        <Route element={<FamilyGate />}>
+          <Route index element={<DashboardPage />} />
+          <Route path="transactions" element={<TransactionsPage />} />
+          <Route path="statistics" element={<StatisticsPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
