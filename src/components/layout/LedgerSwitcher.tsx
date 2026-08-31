@@ -31,7 +31,7 @@ export default function LedgerSwitcher({ compact = false }: { compact?: boolean 
             size={compact ? 'sm' : 'default'}
             className={cn(
               'justify-between gap-2',
-              !compact && 'w-full',
+              compact ? 'flex-1' : 'w-full',
             )}
             disabled={isLoading || !currentLedger}
           >

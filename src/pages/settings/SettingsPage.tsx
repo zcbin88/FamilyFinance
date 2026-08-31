@@ -57,7 +57,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">设置</h1>
         <p className="text-sm text-muted-foreground">家庭、账本、分类管理</p>

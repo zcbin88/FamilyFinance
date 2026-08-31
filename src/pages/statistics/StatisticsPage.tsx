@@ -42,7 +42,7 @@ export default function StatisticsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">统计</h1>
@@ -89,7 +89,7 @@ export default function StatisticsPage() {
             <CardDescription>支出</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-xl font-bold text-destructive">
+            <p className="truncate text-lg font-bold text-destructive sm:text-xl">
               -{isLoading ? '…' : formatMoney(monthExpense)}
             </p>
           </CardContent>
@@ -99,7 +99,7 @@ export default function StatisticsPage() {
             <CardDescription>收入</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-xl font-bold text-emerald-600">
+            <p className="truncate text-lg font-bold text-emerald-600 sm:text-xl">
               +{isLoading ? '…' : formatMoney(monthIncome)}
             </p>
           </CardContent>
@@ -111,7 +111,7 @@ export default function StatisticsPage() {
           <CardContent>
             <p
               className={cn(
-                'text-xl font-bold',
+                'truncate text-lg font-bold sm:text-xl',
                 monthIncome - monthExpense < 0 && 'text-destructive',
               )}
             >

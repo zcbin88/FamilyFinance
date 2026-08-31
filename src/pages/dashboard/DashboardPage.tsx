@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router'
 import { format } from 'date-fns'
-import { ArrowRight, Plus, Wallet } from 'lucide-react'
+import { ArrowRight, Wallet } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -45,20 +45,12 @@ export default function DashboardPage() {
   const recent = result?.transactions.slice(0, 5) ?? []
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">仪表盘</h1>
-          <p className="text-sm text-muted-foreground">
-            {currentLedger?.name ?? '…'} · {month}
-          </p>
-        </div>
-        <Button asChild>
-          <Link to="/transactions/new">
-            <Plus className="size-4" />
-            记一笔
-          </Link>
-        </Button>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold">仪表盘</h1>
+        <p className="text-sm text-muted-foreground">
+          {currentLedger?.name ?? '…'} · {month}
+        </p>
       </div>
 
       {/* 本月概览 */}

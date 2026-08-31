@@ -102,7 +102,7 @@ function LayoutInner() {
           <LedgerSwitcher compact />
         </header>
 
-        <main className="px-4 pb-24 pt-6 md:px-8 md:pb-8">
+        <main className="mx-auto w-full max-w-5xl px-4 pb-24 pt-6 md:px-8 md:pb-8">
           <Outlet />
         </main>
       </div>

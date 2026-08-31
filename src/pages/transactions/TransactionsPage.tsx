@@ -106,7 +106,7 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div className="space-y-4">
       {/* 头部 */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -151,19 +151,19 @@ export default function TransactionsPage() {
         <div className="grid grid-cols-3 gap-3">
           <div className="rounded-xl border p-3">
             <p className="text-xs text-muted-foreground">支出</p>
-            <p className="text-lg font-semibold text-destructive">
+            <p className="truncate text-base font-semibold text-destructive sm:text-lg">
               -{formatMoney(monthExpense)}
             </p>
           </div>
           <div className="rounded-xl border p-3">
             <p className="text-xs text-muted-foreground">收入</p>
-            <p className="text-lg font-semibold text-emerald-600">
+            <p className="truncate text-base font-semibold text-emerald-600 sm:text-lg">
               +{formatMoney(monthIncome)}
             </p>
           </div>
           <div className="rounded-xl border p-3">
             <p className="text-xs text-muted-foreground">结余</p>
-            <p className="text-lg font-semibold">
+            <p className="truncate text-base font-semibold sm:text-lg">
               {formatMoney(monthIncome - monthExpense)}
             </p>
           </div>

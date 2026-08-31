@@ -24,7 +24,7 @@ export default function TransactionFormPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
           <ArrowLeft className="size-5" />
@@ -38,12 +38,14 @@ export default function TransactionFormPage() {
       </div>
 
       {family && currentLedger ? (
-        <TransactionForm
-          familyId={family.id}
-          submitting={createTx.isPending}
-          onSubmit={handleSubmit}
-          submitLabel="保存这笔账"
-        />
+        <div className="mx-auto max-w-lg">
+          <TransactionForm
+            familyId={family.id}
+            submitting={createTx.isPending}
+            onSubmit={handleSubmit}
+            submitLabel="保存这笔账"
+          />
+        </div>
       ) : (
         <p className="py-10 text-center text-muted-foreground">账本加载中…</p>
       )}
