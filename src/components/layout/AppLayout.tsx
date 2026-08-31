@@ -1,8 +1,9 @@
-import { NavLink, Outlet } from 'react-router'
+import { NavLink, Outlet, useNavigate } from 'react-router'
 import {
   BarChart3,
   LayoutDashboard,
   LogOut,
+  Plus,
   ReceiptText,
   Settings,
   Wallet,
@@ -48,6 +49,7 @@ function NavItems({ className }: { className?: string }) {
 
 function LayoutInner() {
   const { user } = useAuth()
+  const navigate = useNavigate()
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -98,22 +100,66 @@ function LayoutInner() {
 
       {/* 移动端底部导航 */}
       <nav className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t bg-card px-2 py-2 md:hidden">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            className={({ isActive }) =>
-              cn(
-                'flex flex-col items-center gap-1 rounded-lg px-4 py-1.5 text-xs font-medium',
-                isActive ? 'text-primary' : 'text-muted-foreground',
-              )
-            }
-          >
-            <item.icon className="size-5" />
-            {item.label}
-          </NavLink>
-        ))}
+        <NavLink
+          to="/"
+          end
+          className={({ isActive }) =>
+            cn(
+              'flex flex-col items-center gap-1 rounded-lg px-4 py-1.5 text-xs font-medium',
+              isActive ? 'text-primary' : 'text-muted-foreground',
+            )
+          }
+        >
+          <LayoutDashboard className="size-5" />
+          首页
+        </NavLink>
+        <NavLink
+          to="/transactions"
+          className={({ isActive }) =>
+            cn(
+              'flex flex-col items-center gap-1 rounded-lg px-4 py-1.5 text-xs font-medium',
+              isActive ? 'text-primary' : 'text-muted-foreground',
+            )
+          }
+        >
+          <ReceiptText className="size-5" />
+          明细
+        </NavLink>
+
+        {/* 中间记账大按钮 */}
+        <button
+          onClick={() => navigate('/transactions/new')}
+          className="flex size-14 -translate-y-4 flex-col items-center justify-center gap-0.5 rounded-full bg-primary text-primary-foreground shadow-lg transition-transform active:scale-95"
+          title="记一笔"
+        >
+          <Plus className="size-6" />
+          <span className="text-[10px] font-medium">记账</span>
+        </button>
+
+        <NavLink
+          to="/statistics"
+          className={({ isActive }) =>
+            cn(
+              'flex flex-col items-center gap-1 rounded-lg px-4 py-1.5 text-xs font-medium',
+              isActive ? 'text-primary' : 'text-muted-foreground',
+            )
+          }
+        >
+          <BarChart3 className="size-5" />
+          统计
+        </NavLink>
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            cn(
+              'flex flex-col items-center gap-1 rounded-lg px-4 py-1.5 text-xs font-medium',
+              isActive ? 'text-primary' : 'text-muted-foreground',
+            )
+          }
+        >
+          <Settings className="size-5" />
+          设置
+        </NavLink>
       </nav>
     </div>
   )

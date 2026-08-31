@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import LedgerManager from '@/components/ledger/LedgerManager'
+import CategoryManager from '@/components/category/CategoryManager'
 import { useCurrentFamily, useFamilyMembers } from '@/hooks/useFamily'
 
 function initials(name: string) {
@@ -140,13 +141,8 @@ export default function SettingsPage() {
       {/* 账本管理 */}
       <LedgerManager />
 
-      {/* 后续模块占位 */}
-      <Card>
-        <CardHeader>
-          <CardTitle>分类管理</CardTitle>
-          <CardDescription>M4 开发中：自定义收支分类</CardDescription>
-        </CardHeader>
-      </Card>
+      {/* 分类管理 */}
+      <CategoryManager />
     </div>
   )
 }

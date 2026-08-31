@@ -11,6 +11,7 @@ import OnboardingPage from '@/pages/onboarding/OnboardingPage'
 import SettingsPage from '@/pages/settings/SettingsPage'
 import StatisticsPage from '@/pages/statistics/StatisticsPage'
 import TransactionsPage from '@/pages/transactions/TransactionsPage'
+import TransactionFormPage from '@/pages/transactions/TransactionFormPage'
 
 function FullPageLoading() {
   return (
@@ -62,6 +63,7 @@ export default function App() {
         <Route element={<FamilyGate />}>
           <Route index element={<DashboardPage />} />
           <Route path="transactions" element={<TransactionsPage />} />
+          <Route path="transactions/new" element={<TransactionFormPage />} />
           <Route path="statistics" element={<StatisticsPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
