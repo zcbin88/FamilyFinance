@@ -1,8 +1,9 @@
 import { useState } from 'react'
+import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
-import { CalendarIcon, Pencil, Trash2 } from 'lucide-react'
+import { CalendarIcon, Pencil, Plus, Trash2 } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -115,7 +116,13 @@ export default function TransactionsPage() {
             账本：{currentLedger?.name ?? '…'}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button asChild>
+            <Link to="/transactions/new">
+              <Plus className="size-4" />
+              记一笔
+            </Link>
+          </Button>
           <Button variant="outline" size="sm" onClick={() => changeMonth(-1)}>
             上月
           </Button>

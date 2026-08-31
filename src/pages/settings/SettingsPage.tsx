@@ -14,6 +14,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import LedgerManager from '@/components/ledger/LedgerManager'
 import CategoryManager from '@/components/category/CategoryManager'
+import ProfileCard from '@/components/profile/ProfileCard'
 import { useCurrentFamily, useFamilyMembers } from '@/hooks/useFamily'
 
 function initials(name: string) {
@@ -37,33 +38,29 @@ export default function SettingsPage() {
     }
   }
 
-  if (familyLoading) {
-    return (
-      <div className="space-y-6">
-        <Skeleton className="h-8 w-32" />
-        <Skeleton className="h-40 w-full max-w-2xl" />
-        <Skeleton className="h-40 w-full max-w-2xl" />
-      </div>
-    )
-  }
-
-  if (!family) {
-    return (
-      <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-        <Users className="size-10" />
-        <p>还没有加入任何家庭</p>
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">设置</h1>
-        <p className="text-sm text-muted-foreground">家庭、账本、分类管理</p>
+        <p className="text-sm text-muted-foreground">个人信息、家庭、账本、分类管理</p>
       </div>
 
-      {/* 家庭信息 */}
+      {/* 个人信息（不依赖家庭，始终可用） */}
+      <ProfileCard />
+
+      {familyLoading ? (
+        <div className="space-y-6">
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-40 w-full" />
+        </div>
+      ) : !family ? (
+        <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
+          <Users className="size-10" />
+          <p>还没有加入任何家庭</p>
+        </div>
+      ) : (
+        <>
+          {/* 家庭信息 */}
       <Card>
         <CardHeader>
           <CardTitle>我的家庭</CardTitle>
@@ -139,10 +136,12 @@ export default function SettingsPage() {
       </Card>
 
       {/* 账本管理 */}
-      <LedgerManager />
+        <LedgerManager />
 
-      {/* 分类管理 */}
-      <CategoryManager />
+        {/* 分类管理 */}
+        <CategoryManager />
+        </>
+      )}
     </div>
   )
 }

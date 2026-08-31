@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router'
 import {
   BarChart3,
@@ -11,9 +12,10 @@ import {
 import { Button } from '@/components/ui/button'
 import { LedgerProvider } from '@/context/LedgerProvider'
 import { useAuth } from '@/context/AuthProvider'
-import { supabase } from '@/lib/supabase'
+import { useProfile } from '@/hooks/useProfile'
 import { cn } from '@/lib/utils'
 import LedgerSwitcher from '@/components/layout/LedgerSwitcher'
+import LogoutDialog from '@/components/layout/LogoutDialog'
 
 const navItems = [
   { to: '/', label: '仪表盘', icon: LayoutDashboard, end: true },
@@ -49,11 +51,9 @@ function NavItems({ className }: { className?: string }) {
 
 function LayoutInner() {
   const { user } = useAuth()
+  const { data: profile } = useProfile(!!user)
   const navigate = useNavigate()
-
-  async function handleLogout() {
-    await supabase.auth.signOut()
-  }
+  const [logoutOpen, setLogoutOpen] = useState(false)
 
   return (
     <div className="min-h-dvh bg-background">
@@ -70,23 +70,21 @@ function LayoutInner() {
           <LedgerSwitcher />
         </div>
 
-        <Button
-          className="mb-6 w-full justify-center gap-2"
-          size="lg"
-          onClick={() => navigate('/transactions/new')}
-        >
-          <Plus className="size-5" />
-          记一笔
-        </Button>
-
         <NavItems className="flex-1" />
 
         <div className="flex items-center justify-between gap-2 border-t pt-4">
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{user?.email}</p>
-            <p className="truncate text-xs text-muted-foreground">家庭成员</p>
+            <p className="truncate text-sm font-medium">{profile?.name || user?.email}</p>
+            <p className="truncate text-xs text-muted-foreground">
+              {profile?.name ? user?.email : '家庭成员'}
+            </p>
           </div>
-          <Button variant="ghost" size="icon" onClick={handleLogout} title="退出登录">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setLogoutOpen(true)}
+            title="退出登录"
+          >
             <LogOut className="size-4" />
           </Button>
         </div>
@@ -170,6 +168,8 @@ function LayoutInner() {
           设置
         </NavLink>
       </nav>
+
+      <LogoutDialog open={logoutOpen} onOpenChange={setLogoutOpen} />
     </div>
   )
 }
