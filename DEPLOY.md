@@ -71,10 +71,11 @@ vercel --prod
 
 | 变量 | 值 |
 |---|---|
-| `VITE_SUPABASE_URL` | 你的 Supabase 项目 URL |
-| `VITE_SUPABASE_ANON_KEY` | anon public key（注意不是 service_role key！） |
+| `SUPABASE_URL` | 你的 Supabase 项目 URL |
+| `SUPABASE_ANON_KEY` | anon public key（注意不是 service_role key！） |
 
-> ⚠️ `VITE_` 前缀变量会打包进前端代码，**绝不能**使用 `service_role` 密钥。
+> ⚠️ 本项目通过 `vite.config.ts` 的 `envPrefix: ['SUPABASE_']` 暴露 `SUPABASE_` 前缀变量到前端代码，**不要**使用 `VITE_` 前缀（Vercel 视为安全隐患），也**绝不能**使用 `service_role` 密钥。
+> 若使用 Vercel 的 Supabase 集成，它会自动注入同名的 `SUPABASE_URL` / `SUPABASE_ANON_KEY`，无需手动填写。
 
 ### 自定义域名
 

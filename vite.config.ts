@@ -6,6 +6,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // 自定义环境变量前缀：不启用 VITE_（Vercel 视为安全隐患），
+  // 仅将 SUPABASE_ 开头的变量暴露给客户端代码
+  envPrefix: ['SUPABASE_'],
   plugins: [
     react(),
     tailwindcss(),
