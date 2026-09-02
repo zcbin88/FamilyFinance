@@ -9,6 +9,12 @@ export default defineConfig({
   // 自定义环境变量前缀：不启用 VITE_（Vercel 视为安全隐患），
   // 仅将 SUPABASE_ 开头的变量暴露给客户端代码
   envPrefix: ['SUPABASE_'],
+  // 兼容旧版 Safari：Vite 8 默认 target 是 safari16.4（Baseline 2025-05），
+  // 旧 iPhone（iOS 15.x / 16.0-16.3）会因 class static block 等语法直接白屏。
+  // 降到 safari15.4（= iOS 15.4，覆盖所有仍可安装 iOS 15 的机型）。
+  build: {
+    target: ['safari15.4', 'ios15.4'],
+  },
   plugins: [
     react(),
     tailwindcss(),

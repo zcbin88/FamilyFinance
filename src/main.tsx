@@ -1,3 +1,5 @@
+// 旧版 Safari 补丁：必须是第一个 import，确保先于其他所有模块执行
+import '@/lib/polyfills'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router'
