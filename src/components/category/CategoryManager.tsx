@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button'
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -113,15 +114,18 @@ export default function CategoryManager() {
 
   return (
     <Card>
-      <CardHeader className="flex-row items-start justify-between space-y-0">
-        <div>
-          <CardTitle>分类管理</CardTitle>
-          <CardDescription>自定义收支分类，全家共享</CardDescription>
-        </div>
-        <Button size="sm" onClick={() => setCreateOpen(true)}>
-          <Plus className="size-4" />
-          添加
-        </Button>
+      <CardHeader>
+        <CardTitle>分类管理</CardTitle>
+        <CardDescription>自定义收支分类，全家共享</CardDescription>
+        <CardAction>
+          <Button
+            className="h-8 rounded-full border-primary/20 bg-primary/10 px-3.5 text-primary shadow-none transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+            onClick={() => setCreateOpen(true)}
+          >
+            <Plus className="size-4" />
+            添加
+          </Button>
+        </CardAction>
       </CardHeader>
       <CardContent className="space-y-5">
         {isLoading ? (

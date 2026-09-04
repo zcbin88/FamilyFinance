@@ -18,6 +18,8 @@ export type Family = {
   name: string
   owner_id: string
   invite_code: string
+  /** 是否允许凭邀请码加入（房主可关闭，防恶意加入） */
+  invite_enabled: boolean
   created_at: string
 }
 
@@ -84,8 +86,8 @@ export type Database = {
       }
       families: {
         Row: Family
-        Insert: { name: string; owner_id: string }
-        Update: { name?: string }
+        Insert: { name: string; owner_id: string; invite_enabled?: boolean }
+        Update: { name?: string; invite_enabled?: boolean }
         Relationships: []
       }
       family_members: {

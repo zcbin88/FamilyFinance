@@ -17,7 +17,13 @@ import { useCurrentFamily } from '@/hooks/useFamily'
 import { LedgerIcon } from '@/lib/ledger-presets'
 import { cn } from '@/lib/utils'
 
-export default function LedgerSwitcher({ compact = false }: { compact?: boolean }) {
+export default function LedgerSwitcher({
+  compact = false,
+  className,
+}: {
+  compact?: boolean
+  className?: string
+}) {
   const { ledgers, currentLedger, isLoading, setCurrentLedger } = useLedgerContext()
   const { data: family } = useCurrentFamily()
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -31,7 +37,8 @@ export default function LedgerSwitcher({ compact = false }: { compact?: boolean 
             size={compact ? 'sm' : 'default'}
             className={cn(
               'justify-between gap-2',
-              compact ? 'flex-1' : 'w-full',
+              compact ? '' : 'w-full',
+              className,
             )}
             disabled={isLoading || !currentLedger}
           >

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/context/AuthProvider'
+import { useCurrentFamily } from '@/hooks/useFamily'
 import { useProfile } from '@/hooks/useProfile'
 import { cn } from '@/lib/utils'
 import LedgerSwitcher from '@/components/layout/LedgerSwitcher'
@@ -50,6 +51,7 @@ function NavItems({ className }: { className?: string }) {
 
 function LayoutInner() {
   const { user } = useAuth()
+  const { data: family } = useCurrentFamily()
   const { data: profile } = useProfile(!!user)
   const navigate = useNavigate()
   const [logoutOpen, setLogoutOpen] = useState(false)
@@ -58,11 +60,13 @@ function LayoutInner() {
     <div className="min-h-dvh bg-background">
       {/* 桌面端侧边栏 */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r bg-card px-4 py-6 md:flex">
-        <div className="mb-6 flex items-center gap-2 px-2">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+        <div className="mb-6 flex min-w-0 items-center gap-2 px-2">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Wallet className="size-4" />
           </span>
-          <span className="text-lg font-semibold">家庭账本</span>
+          <span className="truncate text-lg font-semibold" title={family?.name}>
+            {family?.name || '家庭账本'}
+          </span>
         </div>
 
         <div className="mb-6">
@@ -91,12 +95,15 @@ function LayoutInner() {
 
       {/* 主内容区 */}
       <div className="md:ml-60">
-        {/* 移动端顶部：当前账本切换 */}
-        <header className="sticky top-0 z-20 flex items-center gap-3 border-b bg-background/90 px-4 py-3 backdrop-blur md:hidden">
-          <span className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
+        {/* 移动端顶部：家庭名 + 当前账本切换 */}
+        <header className="sticky top-0 z-20 flex items-center gap-2.5 border-b bg-background/90 px-3 py-2.5 backdrop-blur md:hidden">
+          <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <Wallet className="size-4" />
           </span>
-          <LedgerSwitcher compact />
+          <p className="min-w-0 flex-1 truncate text-sm font-semibold" title={family?.name}>
+            {family?.name || '家庭账本'}
+          </p>
+          <LedgerSwitcher compact className="max-w-[50vw] shrink-0" />
         </header>
 
         <main className="mx-auto w-full max-w-5xl px-4 pb-24 pt-6 md:px-8 md:pb-8">

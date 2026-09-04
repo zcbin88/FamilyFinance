@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
-import { ChevronRight, Copy, Crown, Users } from 'lucide-react'
+import { ChevronRight, Copy, Crown, Lock, Pencil, Users } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,10 +13,12 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Switch } from '@/components/ui/switch'
 import LedgerManager from '@/components/ledger/LedgerManager'
 import CategoryManager from '@/components/category/CategoryManager'
+import RenameFamilyDialog from '@/components/family/RenameFamilyDialog'
 import { useAuth } from '@/context/AuthProvider'
-import { useCurrentFamily, useFamilyMembers } from '@/hooks/useFamily'
+import { useCurrentFamily, useFamilyMembers, useToggleFamilyInvites } from '@/hooks/useFamily'
 import { useProfile } from '@/hooks/useProfile'
 
 function initials(name: string) {
@@ -29,6 +31,11 @@ export default function SettingsPage() {
   const { data: family, isLoading: familyLoading } = useCurrentFamily()
   const { data: members, isLoading: membersLoading } = useFamilyMembers(family?.id)
   const [copied, setCopied] = useState(false)
+  const [renameOpen, setRenameOpen] = useState(false)
+  const toggleInvites = useToggleFamilyInvites()
+
+  // 仅房主可修改家庭名称/邀请开关（RLS 兜底）
+  const isOwner = !!user && family?.owner_id === user.id
 
   async function copyInviteCode() {
     if (!family) return
@@ -39,6 +46,16 @@ export default function SettingsPage() {
       setTimeout(() => setCopied(false), 2000)
     } catch {
       toast.error('复制失败，请手动复制')
+    }
+  }
+
+  async function handleToggleInvite(enabled: boolean) {
+    if (!family) return
+    try {
+      await toggleInvites.mutateAsync({ id: family.id, invite_enabled: enabled })
+      toast.success(enabled ? '已开启家庭邀请' : '已关闭家庭邀请，新成员将无法加入')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : '操作失败')
     }
   }
 
@@ -93,29 +110,76 @@ export default function SettingsPage() {
           <CardDescription>邀请家人加入，一起记账</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <p className="text-lg font-medium">{family.name}</p>
-              <p className="text-sm text-muted-foreground">
-                {members?.length ?? '…'} 位成员
-              </p>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <p className="truncate text-lg font-medium">{family.name}</p>
+              {isOwner && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 shrink-0 text-muted-foreground hover:text-foreground"
+                  title="修改家庭名称"
+                  onClick={() => setRenameOpen(true)}
+                >
+                  <Pencil className="size-4" />
+                </Button>
+              )}
             </div>
+            <p className="text-sm text-muted-foreground">
+              {members?.length ?? '…'} 位成员
+            </p>
           </div>
 
-          <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/40 px-4 py-3">
-            <div>
-              <p className="text-xs text-muted-foreground">家庭邀请码</p>
-              <p className="font-mono text-xl font-semibold tracking-[0.3em]">
-                {family.invite_code}
-              </p>
+          {/* 邀请开关：房主可关闭，防止恶意加入（非房主不显示） */}
+          {isOwner && (
+            <div className="flex items-center justify-between gap-3 rounded-lg border px-4 py-3">
+              <div>
+                <p className="text-sm font-medium">允许通过邀请码加入</p>
+                <p className="text-xs text-muted-foreground">
+                  {family.invite_enabled
+                    ? '开启中 · 家人可凭邀请码加入'
+                    : '已关闭 · 新成员无法加入'}
+                </p>
+              </div>
+              <Switch
+                checked={family.invite_enabled}
+                onCheckedChange={handleToggleInvite}
+                disabled={toggleInvites.isPending}
+                aria-label="切换家庭邀请"
+              />
             </div>
-            <Button variant="outline" size="sm" onClick={copyInviteCode}>
-              <Copy className="size-4" />
-              {copied ? '已复制' : '复制'}
-            </Button>
-          </div>
+          )}
+
+          {family.invite_enabled ? (
+            <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/40 px-4 py-3">
+              <div>
+                <p className="text-xs text-muted-foreground">家庭邀请码</p>
+                <p className="font-mono text-xl font-semibold tracking-[0.3em]">
+                  {family.invite_code}
+                </p>
+              </div>
+              <Button variant="outline" size="sm" onClick={copyInviteCode}>
+                <Copy className="size-4" />
+                {copied ? '已复制' : '复制'}
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-dashed px-4 py-3 text-muted-foreground">
+              <div>
+                <p className="text-xs">家庭邀请码</p>
+                <p className="text-sm">邀请已关闭，新成员暂时无法加入</p>
+              </div>
+              <Lock className="size-4 shrink-0" />
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      <RenameFamilyDialog
+        open={renameOpen}
+        onOpenChange={setRenameOpen}
+        family={family}
+      />
 
       {/* 成员列表 */}
       <Card>

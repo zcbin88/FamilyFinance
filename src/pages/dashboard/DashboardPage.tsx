@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -90,17 +91,17 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         {/* 最近交易 */}
         <Card className="lg:col-span-3">
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <div>
-              <CardTitle>最近交易</CardTitle>
-              <CardDescription>本月的最近 5 笔</CardDescription>
-            </div>
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/transactions">
-                全部
-                <ArrowRight className="size-4" />
-              </Link>
-            </Button>
+          <CardHeader>
+            <CardTitle>最近交易</CardTitle>
+            <CardDescription>本月的最近 5 笔</CardDescription>
+            <CardAction>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/transactions">
+                  全部
+                  <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+            </CardAction>
           </CardHeader>
           <CardContent>
             {isLoading ? (

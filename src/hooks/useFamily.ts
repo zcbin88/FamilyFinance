@@ -93,3 +93,54 @@ export function useJoinFamily() {
     onSuccess: () => qc.invalidateQueries({ queryKey: familyKeys.all }),
   })
 }
+
+/** 更新家庭（V1：仅房主可改名，RLS 兜底） */
+export function useUpdateFamily() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+      const trimmed = name.trim()
+      const { data, error } = await supabase
+        .from('families')
+        .update({ name: trimmed })
+        .eq('id', id)
+        .select()
+        .single()
+      if (error) throw error
+      return data
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: familyKeys.all }),
+  })
+}
+
+/** 开关家庭邀请码加入（仅房主可操作，RLS 兜底）。
+ * 乐观更新当前家庭缓存，失败自动回滚 */
+export function useToggleFamilyInvites() {
+  const qc = useQueryClient()
+  const { user } = useAuth()
+  const currentKey = familyKeys.current(user?.id)
+  return useMutation({
+    mutationFn: async ({ id, invite_enabled }: { id: string; invite_enabled: boolean }) => {
+      const { data, error } = await supabase
+        .from('families')
+        .update({ invite_enabled })
+        .eq('id', id)
+        .select()
+        .single()
+      if (error) throw error
+      return data as Family
+    },
+    onMutate: async ({ id, invite_enabled }) => {
+      await qc.cancelQueries({ queryKey: familyKeys.all })
+      qc.setQueryData<Family | null>(currentKey, (old) =>
+        old && old.id === id ? { ...old, invite_enabled } : old
+      )
+    },
+    onError: (_err, { id, invite_enabled }) => {
+      qc.setQueryData<Family | null>(currentKey, (old) =>
+        old && old.id === id ? { ...old, invite_enabled: !invite_enabled } : old
+      )
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: familyKeys.all }),
+  })
+}

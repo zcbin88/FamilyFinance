@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -71,15 +72,18 @@ export default function LedgerManager() {
 
   return (
     <Card>
-      <CardHeader className="flex-row items-start justify-between space-y-0">
-        <div>
-          <CardTitle>账本管理</CardTitle>
-          <CardDescription>为不同用途建独立账本，互不干扰</CardDescription>
-        </div>
-        <Button size="sm" onClick={() => setCreateOpen(true)}>
-          <Plus className="size-4" />
-          新建
-        </Button>
+      <CardHeader>
+        <CardTitle>账本管理</CardTitle>
+        <CardDescription>为不同用途建独立账本，互不干扰</CardDescription>
+        <CardAction>
+          <Button
+            className="h-8 rounded-full border-primary/20 bg-primary/10 px-3.5 text-primary shadow-none transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+            onClick={() => setCreateOpen(true)}
+          >
+            <Plus className="size-4" />
+            新建
+          </Button>
+        </CardAction>
       </CardHeader>
       <CardContent>
         {isLoading ? (
