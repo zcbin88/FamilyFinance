@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import CategoryPie from '@/components/stats/CategoryPie'
+import MemberStats from '@/components/stats/MemberStats'
 import TrendChart from '@/components/stats/TrendChart'
 import { useLedgerContext } from '@/context/LedgerProvider'
 import { useCurrentFamily } from '@/hooks/useFamily'
@@ -132,16 +133,28 @@ export default function StatisticsPage() {
         </CardContent>
       </Card>
 
-      {/* 分类占比 */}
-      <Card>
-        <CardHeader>
-          <CardTitle>支出构成</CardTitle>
-          <CardDescription>{month} 支出分类占比</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <CategoryPie familyId={family?.id} ledgerId={currentLedger?.id} month={month} />
-        </CardContent>
-      </Card>
+      {/* 分类占比 + 成员统计 */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>支出构成</CardTitle>
+            <CardDescription>{month} 支出分类占比</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CategoryPie familyId={family?.id} ledgerId={currentLedger?.id} month={month} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>成员统计</CardTitle>
+            <CardDescription>{month} 各成员记录的支出 / 收入</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <MemberStats familyId={family?.id} ledgerId={currentLedger?.id} month={month} />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
