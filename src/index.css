@@ -443,3 +443,12 @@ ion-datetime.month-datetime {
   max-width: 100%;
   --background: transparent;
 }
+/* ===== 明细列表左滑操作（ion-item-sliding）=====
+   Ionic 的手势监听是 passive 的、不会 preventDefault，
+   部分浏览器会把横向拖动判定成自身的手势（横向回退/边缘手势）而吞掉。
+   touch-action: pan-y 明确告诉浏览器：横向交给我们自己处理，只保留纵向滚动。
+   overscroll-behavior-x: contain 再挡一层横向越界引发的页面级导航。 */
+ion-item-sliding {
+  touch-action: pan-y;
+  overscroll-behavior-x: contain;
+}

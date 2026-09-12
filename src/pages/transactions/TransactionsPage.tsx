@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import {
+  IonActionSheet,
   IonAlert,
   IonButton,
   IonButtons,
@@ -24,6 +25,7 @@ import {
   calendarClearOutline,
   chevronBack,
   chevronForward,
+  ellipsisVertical,
   pencilOutline,
   trashOutline,
 } from 'ionicons/icons'
@@ -61,6 +63,8 @@ export default function TransactionsPage() {
   const [monthOpen, setMonthOpen] = useState(false)
   const [editing, setEditing] = useState<Transaction | null>(null)
   const [deleting, setDeleting] = useState<Transaction | null>(null)
+  // 「更多」操作表的目标行：给不支持左滑手势的浏览器兜底
+  const [actionTarget, setActionTarget] = useState<Transaction | null>(null)
 
   const { data: categories } = useCategories(family?.id)
   const { data: result, isLoading } = useTransactions(currentLedger?.id, month)
@@ -256,6 +260,19 @@ export default function TransactionsPage() {
                                 </span>
                               </p>
                             </div>
+
+                            {/* 「更多」：普通点击，不依赖滑动手势，所有浏览器都能触发 */}
+                            <button
+                              type="button"
+                              aria-label="更多操作"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setActionTarget(tx)
+                              }}
+                              className="-mr-1 flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors active:bg-muted"
+                            >
+                              <IonIcon icon={ellipsisVertical} className="text-lg" />
+                            </button>
                           </div>
                         </IonItem>
 
@@ -303,6 +320,38 @@ export default function TransactionsPage() {
           </div>
         </IonContent>
       </IonModal>
+
+      {/* 行内「更多」操作表：左滑手势在部分手机浏览器（微信/QQ/UC 的 X5 内核、
+          从屏幕边缘起手的 iOS 手势等）会被系统或浏览器吞掉，这里给一个纯点击的入口。 */}
+      <IonActionSheet
+        isOpen={!!actionTarget}
+        header={
+          actionTarget
+            ? `${categoryMap.get(actionTarget.category_id)?.name ?? '未知分类'} · ${formatMoney(actionTarget.amount)} 元`
+            : ''
+        }
+        buttons={[
+          {
+            text: '编辑',
+            icon: pencilOutline,
+            handler: () => {
+              setEditing(actionTarget)
+              setActionTarget(null)
+            },
+          },
+          {
+            text: '删除',
+            icon: trashOutline,
+            role: 'destructive',
+            handler: () => {
+              setDeleting(actionTarget)
+              setActionTarget(null)
+            },
+          },
+          { text: '取消', role: 'cancel' },
+        ]}
+        onDidDismiss={() => setActionTarget(null)}
+      />
 
       {/* 删除确认：IonAlert 原生弹窗 */}
       <IonAlert
