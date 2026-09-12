@@ -1,17 +1,8 @@
 import { toast } from 'sonner'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+import { IonAlert } from '@ionic/react'
 import { supabase } from '@/lib/supabase'
 
-/** 退出登录确认对话框 */
+/** 退出登录确认：Ionic 原生 Alert */
 export default function LogoutDialog({
   open,
   onOpenChange,
@@ -29,24 +20,15 @@ export default function LogoutDialog({
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>退出登录？</AlertDialogTitle>
-          <AlertDialogDescription>
-            退出后需要重新输入邮箱和密码才能继续使用。
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>取消</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={handleLogout}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-          >
-            退出登录
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <IonAlert
+      isOpen={open}
+      header="退出登录？"
+      message="退出后需要重新输入邮箱和密码才能继续使用。"
+      buttons={[
+        { text: '取消', role: 'cancel' },
+        { text: '退出登录', role: 'destructive', handler: handleLogout },
+      ]}
+      onDidDismiss={() => onOpenChange(false)}
+    />
   )
 }

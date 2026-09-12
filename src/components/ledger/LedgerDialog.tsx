@@ -1,17 +1,15 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonInput,
+  IonModal,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/react'
 import { useCreateLedger, useUpdateLedger } from '@/hooks/useLedgers'
 import {
   LEDGER_COLORS,
@@ -80,30 +78,30 @@ export default function LedgerDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-sm">
-        <DialogHeader>
-          <DialogTitle>{isEdit ? '编辑账本' : '新建账本'}</DialogTitle>
-          <DialogDescription>
-            例如：日常账本、旅行账本、装修账本…
-          </DialogDescription>
-        </DialogHeader>
+    <IonModal isOpen={open} onDidDismiss={() => onOpenChange(false)}>
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>{isEdit ? '编辑账本' : '新建账本'}</IonTitle>
+          <IonButtons slot="end">
+            <IonButton onClick={() => onOpenChange(false)}>关闭</IonButton>
+          </IonButtons>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent>
+        <form onSubmit={handleSubmit} className="space-y-5 p-4">
+          <IonInput
+            className="form-field"
+            label="账本名称"
+            labelPlacement="stacked"
+            value={name}
+            onIonInput={(e) => setName(e.detail.value ?? '')}
+            placeholder="日常账本"
+            maxlength={20}
+            autoFocus
+          />
 
-        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="ledger-name">账本名称</Label>
-            <Input
-              id="ledger-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="日常账本"
-              maxLength={20}
-              autoFocus
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>图标</Label>
+            <p className="px-1 text-sm font-medium text-muted-foreground">图标</p>
             <div className="flex flex-wrap gap-2">
               {LEDGER_ICON_KEYS.map((key) => (
                 <button
@@ -114,7 +112,7 @@ export default function LedgerDialog({
                     'flex size-9 items-center justify-center rounded-lg border transition-colors',
                     icon === key
                       ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-border text-muted-foreground hover:bg-muted',
+                      : 'border-border text-muted-foreground active:bg-muted',
                   )}
                 >
                   <LedgerIcon icon={key} className="size-4" />
@@ -124,7 +122,7 @@ export default function LedgerDialog({
           </div>
 
           <div className="space-y-2">
-            <Label>颜色</Label>
+            <p className="px-1 text-sm font-medium text-muted-foreground">颜色</p>
             <div className="flex flex-wrap gap-2">
               {LEDGER_COLORS.map((c) => (
                 <button
@@ -132,7 +130,7 @@ export default function LedgerDialog({
                   type="button"
                   onClick={() => setColor(c)}
                   className={cn(
-                    'size-7 rounded-full border-2 transition-transform',
+                    'size-8 rounded-full border-2 transition-transform active:scale-95',
                     color === c ? 'scale-110 border-foreground' : 'border-transparent',
                   )}
                   style={{ backgroundColor: c }}
@@ -142,17 +140,11 @@ export default function LedgerDialog({
             </div>
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              取消
-            </Button>
-            <Button type="submit" disabled={submitting || !name.trim()}>
-              {submitting && <Loader2 className="size-4 animate-spin" />}
-              {isEdit ? '保存' : '创建'}
-            </Button>
-          </DialogFooter>
+          <IonButton type="submit" expand="block" disabled={submitting || !name.trim()}>
+            {submitting ? '保存中…' : isEdit ? '保存' : '创建'}
+          </IonButton>
         </form>
-      </DialogContent>
-    </Dialog>
+      </IonContent>
+    </IonModal>
   )
 }

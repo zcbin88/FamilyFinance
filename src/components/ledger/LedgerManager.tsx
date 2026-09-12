@@ -1,18 +1,8 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Loader2, Pencil, Plus, Star, Trash2 } from 'lucide-react'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+import { IonAlert, IonButton, IonIcon } from '@ionic/react'
+import { addOutline, createOutline, starOutline, trashOutline } from 'ionicons/icons'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import {
   Card,
   CardAction,
@@ -76,13 +66,15 @@ export default function LedgerManager() {
         <CardTitle>账本管理</CardTitle>
         <CardDescription>为不同用途建独立账本，互不干扰</CardDescription>
         <CardAction>
-          <Button
-            className="h-8 rounded-full border-primary/20 bg-primary/10 px-3.5 text-primary shadow-none transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+          <IonButton
+            size="small"
+            fill="outline"
+            className="h-8 rounded-full"
             onClick={() => setCreateOpen(true)}
           >
-            <Plus className="size-4" />
+            <IonIcon slot="start" icon={addOutline} />
             新建
-          </Button>
+          </IonButton>
         </CardAction>
       </CardHeader>
       <CardContent>
@@ -94,7 +86,7 @@ export default function LedgerManager() {
         ) : ledgers && ledgers.length > 0 ? (
           <ul className="divide-y">
             {ledgers.map((ledger) => (
-              <li key={ledger.id} className="flex items-center gap-3 py-3">
+              <li key={ledger.id} className="flex items-center gap-3 py-2">
                 <span
                   className="flex size-9 shrink-0 items-center justify-center rounded-lg"
                   style={{ backgroundColor: `${ledger.color}1a` }}
@@ -110,34 +102,35 @@ export default function LedgerManager() {
                     )}
                   </p>
                 </div>
-                <div className="flex shrink-0 items-center gap-1">
+                <div className="flex shrink-0 items-center">
                   {!ledger.is_default && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      title="设为默认"
-                      onClick={() => handleSetDefault(ledger)}
+                    <IonButton
+                      fill="clear"
+                      size="small"
+                      aria-label="设为默认"
                       disabled={setDefault.isPending}
+                      onClick={() => handleSetDefault(ledger)}
                     >
-                      <Star className="size-4" />
-                    </Button>
+                      <IonIcon slot="icon-only" icon={starOutline} />
+                    </IonButton>
                   )}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    title="重命名"
+                  <IonButton
+                    fill="clear"
+                    size="small"
+                    aria-label="重命名"
                     onClick={() => setEditing(ledger)}
                   >
-                    <Pencil className="size-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    title="删除"
+                    <IonIcon slot="icon-only" icon={createOutline} />
+                  </IonButton>
+                  <IonButton
+                    fill="clear"
+                    size="small"
+                    color="danger"
+                    aria-label="删除"
                     onClick={() => setDeleting(ledger)}
                   >
-                    <Trash2 className="size-4 text-destructive" />
-                  </Button>
+                    <IonIcon slot="icon-only" icon={trashOutline} />
+                  </IonButton>
                 </div>
               </li>
             ))}
@@ -161,27 +154,16 @@ export default function LedgerManager() {
         ledger={editing}
       />
 
-      <AlertDialog open={!!deleting} onOpenChange={(open) => !open && setDeleting(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>删除账本「{deleting?.name}」？</AlertDialogTitle>
-            <AlertDialogDescription>
-              账本会被移入回收站，其中的账单记录将不再显示。此操作可以恢复吗？
-              目前暂不支持恢复，请谨慎操作。
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {deleteLedger.isPending && <Loader2 className="size-4 animate-spin" />}
-              确认删除
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <IonAlert
+        isOpen={!!deleting}
+        header={`删除账本「${deleting?.name ?? ''}」？`}
+        message="账本会被移入回收站，其中的账单记录将不再显示。目前暂不支持恢复，请谨慎操作。"
+        buttons={[
+          { text: '取消', role: 'cancel' },
+          { text: '确认删除', role: 'destructive', handler: handleDelete },
+        ]}
+        onDidDismiss={() => setDeleting(null)}
+      />
     </Card>
   )
 }

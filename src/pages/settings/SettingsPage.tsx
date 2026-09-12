@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { ChevronRight, Copy, Crown, Lock, Pencil, Users } from 'lucide-react'
+import { IonToggle } from '@ionic/react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,7 +14,6 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Switch } from '@/components/ui/switch'
 import LedgerManager from '@/components/ledger/LedgerManager'
 import CategoryManager from '@/components/category/CategoryManager'
 import RenameFamilyDialog from '@/components/family/RenameFamilyDialog'
@@ -141,9 +141,9 @@ export default function SettingsPage() {
                     : '已关闭 · 新成员无法加入'}
                 </p>
               </div>
-              <Switch
+              <IonToggle
                 checked={family.invite_enabled}
-                onCheckedChange={handleToggleInvite}
+                onIonChange={(e) => handleToggleInvite(e.detail.checked)}
                 disabled={toggleInvites.isPending}
                 aria-label="切换家庭邀请"
               />

@@ -1,17 +1,22 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Loader2, Plus, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
+  IonAlert,
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonInput,
+  IonLabel,
+  IonModal,
+  IonSegment,
+  IonSegmentButton,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/react'
+import { addOutline } from 'ionicons/icons'
 import {
   Card,
   CardAction,
@@ -20,16 +25,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useCreateCategory, useDeleteCategory, useCategories } from '@/hooks/useCategories'
 import { useCurrentFamily } from '@/hooks/useFamily'
@@ -50,7 +45,7 @@ function CategoryChips({
   return (
     <div className="flex flex-wrap gap-2">
       {cats.map((cat) => (
-        <div key={cat.id} className="group flex items-center gap-1.5 rounded-full border py-1 pl-2 pr-1">
+        <div key={cat.id} className="flex items-center gap-1.5 rounded-full border py-1 pl-2 pr-1">
           <span
             className="flex size-6 items-center justify-center rounded-full"
             style={{ backgroundColor: `${cat.color}1f` }}
@@ -58,9 +53,10 @@ function CategoryChips({
             <CategoryIcon icon={cat.icon} color={cat.color} className="size-3.5" />
           </span>
           <span className="text-sm">{cat.name}</span>
+          {/* 触屏没有 hover，删除按钮常显 */}
           <button
             onClick={() => onDelete(cat)}
-            className="rounded-full p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
+            className="rounded-full p-1 text-muted-foreground active:bg-destructive/10 active:text-destructive"
             title="删除分类"
           >
             <Trash2 className="size-3.5" />
@@ -118,13 +114,15 @@ export default function CategoryManager() {
         <CardTitle>分类管理</CardTitle>
         <CardDescription>自定义收支分类，全家共享</CardDescription>
         <CardAction>
-          <Button
-            className="h-8 rounded-full border-primary/20 bg-primary/10 px-3.5 text-primary shadow-none transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+          <IonButton
+            size="small"
+            fill="outline"
+            className="h-8 rounded-full"
             onClick={() => setCreateOpen(true)}
           >
-            <Plus className="size-4" />
+            <IonIcon slot="start" icon={addOutline} />
             添加
-          </Button>
+          </IonButton>
         </CardAction>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -149,43 +147,43 @@ export default function CategoryManager() {
         )}
       </CardContent>
 
-      {/* 新增分类对话框 */}
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>添加分类</DialogTitle>
-            <DialogDescription>新分类立即对全家所有账本生效</DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleCreate} className="space-y-5">
-            <div className="grid grid-cols-2 gap-2 rounded-xl bg-muted p-1">
-              {(['expense', 'income'] as const).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setType(t)}
-                  className={cn(
-                    'rounded-lg py-2 text-sm font-medium',
-                    type === t ? 'bg-background shadow-sm' : 'text-muted-foreground',
-                  )}
-                >
-                  {t === 'expense' ? '支出' : '收入'}
-                </button>
-              ))}
-            </div>
+      {/* 新增分类：Ionic 全屏 Modal */}
+      <IonModal isOpen={createOpen} onDidDismiss={() => setCreateOpen(false)}>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>添加分类</IonTitle>
+            <IonButtons slot="end">
+              <IonButton onClick={() => setCreateOpen(false)}>关闭</IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent>
+          <form onSubmit={handleCreate} className="space-y-5 p-4">
+            <IonSegment
+              value={type}
+              onIonChange={(e) => setType(e.detail.value as CategoryType)}
+            >
+              <IonSegmentButton value="expense">
+                <IonLabel>支出</IonLabel>
+              </IonSegmentButton>
+              <IonSegmentButton value="income">
+                <IonLabel>收入</IonLabel>
+              </IonSegmentButton>
+            </IonSegment>
+
+            <IonInput
+              className="form-field"
+              label="分类名称"
+              labelPlacement="stacked"
+              value={name}
+              onIonInput={(e) => setName(e.detail.value ?? '')}
+              placeholder="例如：宠物、房租"
+              maxlength={10}
+              autoFocus
+            />
 
             <div className="space-y-2">
-              <Label htmlFor="cat-name">分类名称</Label>
-              <Input
-                id="cat-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="例如：宠物、房租"
-                maxLength={10}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>图标</Label>
+              <p className="px-1 text-sm font-medium text-muted-foreground">图标</p>
               <div className="flex flex-wrap gap-2">
                 {ICON_KEYS.map((key) => (
                   <button
@@ -196,7 +194,7 @@ export default function CategoryManager() {
                       'flex size-9 items-center justify-center rounded-lg border transition-colors',
                       icon === key
                         ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-border text-muted-foreground hover:bg-muted',
+                        : 'border-border text-muted-foreground active:bg-muted',
                     )}
                   >
                     <CategoryIcon icon={key} className="size-4" />
@@ -206,7 +204,7 @@ export default function CategoryManager() {
             </div>
 
             <div className="space-y-2">
-              <Label>颜色</Label>
+              <p className="px-1 text-sm font-medium text-muted-foreground">颜色</p>
               <div className="flex flex-wrap gap-2">
                 {COLORS.map((c) => (
                   <button
@@ -214,7 +212,7 @@ export default function CategoryManager() {
                     type="button"
                     onClick={() => setColor(c)}
                     className={cn(
-                      'size-7 rounded-full border-2 transition-transform',
+                      'size-8 rounded-full border-2 transition-transform active:scale-95',
                       color === c ? 'scale-110 border-foreground' : 'border-transparent',
                     )}
                     style={{ backgroundColor: c }}
@@ -224,39 +222,28 @@ export default function CategoryManager() {
               </div>
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
-                取消
-              </Button>
-              <Button type="submit" disabled={createCategory.isPending || !name.trim()}>
-                {createCategory.isPending && <Loader2 className="size-4 animate-spin" />}
-                添加
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* 删除确认 */}
-      <AlertDialog open={!!deleting} onOpenChange={(open) => !open && setDeleting(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>删除分类「{deleting?.name}」？</AlertDialogTitle>
-            <AlertDialogDescription>
-              已有账单使用该分类时无法删除（会提示失败）。
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            <IonButton
+              type="submit"
+              expand="block"
+              disabled={createCategory.isPending || !name.trim()}
             >
-              确认删除
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              {createCategory.isPending ? '添加中…' : '添加'}
+            </IonButton>
+          </form>
+        </IonContent>
+      </IonModal>
+
+      {/* 删除确认：Ionic Alert */}
+      <IonAlert
+        isOpen={!!deleting}
+        header={`删除分类「${deleting?.name ?? ''}」？`}
+        message="已有账单使用该分类时无法删除（会提示失败）。"
+        buttons={[
+          { text: '取消', role: 'cancel' },
+          { text: '确认删除', role: 'destructive', handler: handleDelete },
+        ]}
+        onDidDismiss={() => setDeleting(null)}
+      />
     </Card>
   )
 }

@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { LogOut } from 'lucide-react'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
+import { IonButton, IonIcon, IonInput } from '@ionic/react'
+import { logOutOutline } from 'ionicons/icons'
 import {
   Card,
   CardContent,
@@ -10,9 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
 import LogoutDialog from '@/components/layout/LogoutDialog'
 import { useAuth } from '@/context/AuthProvider'
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile'
@@ -58,46 +54,45 @@ export default function ProfileCard() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-3">
-          <Avatar className="size-12">
-            <AvatarFallback className="text-base">
-              {profile?.name ? initials(profile.name) : '?'}
-            </AvatarFallback>
-          </Avatar>
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-secondary text-base font-medium">
+            {profile?.name ? initials(profile.name) : '?'}
+          </span>
           <div className="min-w-0">
             <p className="truncate font-medium">{profile?.name || '未设置昵称'}</p>
             <p className="truncate text-sm text-muted-foreground">{user?.email}</p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex items-end gap-3">
-          <div className="flex-1 space-y-2">
-            <Label htmlFor="nickname">昵称</Label>
-            <Input
-              id="nickname"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="你的昵称"
-              maxLength={20}
-            />
-          </div>
-          <Button
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <IonInput
+            className="form-field"
+            label="昵称"
+            labelPlacement="stacked"
+            value={name}
+            onIonInput={(e) => setName(e.detail.value ?? '')}
+            placeholder="你的昵称"
+            maxlength={20}
+          />
+          <IonButton
             type="submit"
+            expand="block"
             disabled={updateProfile.isPending || !name.trim() || unchanged}
           >
             {updateProfile.isPending ? '保存中…' : '保存'}
-          </Button>
+          </IonButton>
         </form>
 
-        <Separator />
+        <div className="h-px bg-border" />
 
-        <Button
-          variant="outline"
-          className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
+        <IonButton
+          expand="block"
+          fill="outline"
+          color="danger"
           onClick={() => setLogoutOpen(true)}
         >
-          <LogOut className="size-4" />
+          <IonIcon slot="start" icon={logOutOutline} />
           退出登录
-        </Button>
+        </IonButton>
       </CardContent>
 
       <LogoutDialog open={logoutOpen} onOpenChange={setLogoutOpen} />
