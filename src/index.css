@@ -305,17 +305,15 @@
 }
 
 /* ===== 顶部栏：扁平化 + 降低高度 =====
-   Android(Material) 默认 56px 且带滚动阴影 */
-ion-header,
-ion-toolbar {
-  --box-shadow: none;
-  --border-width: 0;
-}
-ion-header {
-  box-shadow: none;
+   Android(Material) 的 ion-header 带 .header-md 类，阴影是硬编码的
+   Material elevation（不是 --box-shadow 变量），必须显式覆盖 */
+ion-header.header-md,
+ion-header.header-ios {
+  box-shadow: none !important;
 }
 ion-toolbar {
   --min-height: 44px;
+  --border-width: 0;
 }
 
 /* ===== 胶囊按钮（新建 / 添加）=====
@@ -349,4 +347,10 @@ ion-toolbar {
 /* 编辑/新建弹窗里的工具栏也保持紧凑 */
 ion-modal ion-toolbar {
   --min-height: 52px;
+}
+
+/* 月份选择器：铺满宽度 */
+ion-datetime.month-datetime {
+  width: 100%;
+  max-width: 100%;
 }

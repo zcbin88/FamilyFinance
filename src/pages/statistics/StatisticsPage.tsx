@@ -64,15 +64,11 @@ export default function StatisticsPage() {
         </IonButton>
       </div>
 
-      <IonModal
-        isOpen={monthOpen}
-        onDidDismiss={() => setMonthOpen(false)}
-        initialBreakpoint={0.55}
-        breakpoints={[0, 0.55, 1]}
-      >
+      <IonModal isOpen={monthOpen} onDidDismiss={() => setMonthOpen(false)}>
         <IonContent>
-          <div className="flex h-full items-center justify-center">
+          <div className="flex h-full items-center justify-center px-2">
             <IonDatetime
+              className="month-datetime"
               presentation="month-year"
               locale="zh-CN"
               value={month}

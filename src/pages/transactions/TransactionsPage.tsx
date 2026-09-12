@@ -136,15 +136,11 @@ export default function TransactionsPage() {
         </IonButton>
       </div>
 
-      <IonModal
-        isOpen={monthOpen}
-        onDidDismiss={() => setMonthOpen(false)}
-        initialBreakpoint={0.55}
-        breakpoints={[0, 0.55, 1]}
-      >
+      <IonModal isOpen={monthOpen} onDidDismiss={() => setMonthOpen(false)}>
         <IonContent>
-          <div className="flex h-full items-center justify-center">
+          <div className="flex h-full items-center justify-center px-2">
             <IonDatetime
+              className="month-datetime"
               presentation="month-year"
               locale="zh-CN"
               value={month}
@@ -237,41 +233,46 @@ export default function TransactionsPage() {
                   const recorder = profileMap?.get(tx.user_id)
                   return (
                     <IonItemSliding key={tx.id}>
-                      <IonItem button detail={false} onClick={() => setEditing(tx)}>
-                        <span
-                          slot="start"
-                          className="me-3 flex size-10 items-center justify-center rounded-full"
-                          style={{ backgroundColor: `${cat?.color ?? '#6b7280'}1f` }}
-                        >
-                          <CategoryIcon
-                            icon={cat?.icon ?? 'ellipsis'}
-                            color={cat?.color}
-                            className="size-5"
-                          />
-                        </span>
-
-                        <IonLabel className="min-w-0">
-                          <div className="flex items-baseline gap-3">
-                            <h2 className="m-0 min-w-0 flex-1 truncate text-sm font-medium">
-                              {cat?.name ?? '未知分类'}
-                            </h2>
-                            <span
-                              className={cn(
-                                'shrink-0 text-sm font-semibold tabular-nums',
-                                tx.type === 'expense' ? 'text-green-600' : 'text-red-600',
-                              )}
-                            >
-                              {tx.type === 'expense' ? '-' : '+'}
-                              {formatMoney(tx.amount)}
-                            </span>
+                      <IonItem
+                        lines="full"
+                        detail={false}
+                        onClick={() => setEditing(tx)}
+                        className="[--padding-start:0] [--inner-padding-end:0] [--min-height:0]"
+                      >
+                        <div className="flex w-full items-center gap-3 px-4 py-3">
+                          <span
+                            className="flex size-10 shrink-0 items-center justify-center rounded-full"
+                            style={{ backgroundColor: `${cat?.color ?? '#6b7280'}1f` }}
+                          >
+                            <CategoryIcon
+                              icon={cat?.icon ?? 'ellipsis'}
+                              color={cat?.color}
+                              className="size-5"
+                            />
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-baseline gap-3">
+                              <p className="m-0 min-w-0 flex-1 truncate text-sm font-medium">
+                                {cat?.name ?? '未知分类'}
+                              </p>
+                              <span
+                                className={cn(
+                                  'shrink-0 text-sm font-semibold tabular-nums',
+                                  tx.type === 'expense' ? 'text-green-600' : 'text-red-600',
+                                )}
+                              >
+                                {tx.type === 'expense' ? '-' : '+'}
+                                {formatMoney(tx.amount)}
+                              </span>
+                            </div>
+                            <p className="m-0 mt-0.5 flex items-center gap-3 text-xs text-muted-foreground">
+                              <span className="min-w-0 flex-1 truncate">{tx.note}</span>
+                              <span className="shrink-0">
+                                {tx.pay_method ?? '现金'} · {recorder?.name ?? '未知'}
+                              </span>
+                            </p>
                           </div>
-                          <p className="m-0 mt-0.5 flex items-center gap-3 text-xs text-muted-foreground">
-                            <span className="min-w-0 flex-1 truncate">{tx.note}</span>
-                            <span className="shrink-0">
-                              {tx.pay_method ?? '现金'} · {recorder?.name ?? '未知'}
-                            </span>
-                          </p>
-                        </IonLabel>
+                        </div>
                       </IonItem>
 
                       {/* 左滑操作：编辑 / 删除 */}
