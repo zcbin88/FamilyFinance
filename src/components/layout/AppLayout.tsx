@@ -2,8 +2,6 @@ import { Outlet, useLocation, useNavigate } from 'react-router'
 import {
   IonButtons,
   IonContent,
-  IonFab,
-  IonFabButton,
   IonHeader,
   IonIcon,
   IonLabel,
@@ -56,27 +54,51 @@ export default function AppLayout() {
         <div className="mx-auto w-full max-w-3xl px-4 pb-28 pt-4">
           <Outlet />
         </div>
-
-        <IonFab slot="fixed" vertical="bottom" horizontal="center">
-          <IonFabButton onClick={() => navigate('/transactions/new')} aria-label="记一笔">
-            <IonIcon icon={add} />
-          </IonFabButton>
-        </IonFab>
       </IonContent>
 
-      <IonTabBar>
-        {TABS.map((tab) => (
-          <IonTabButton
-            key={tab.path}
-            tab={tab.path}
-            selected={isActive(pathname, tab.path, tab.end)}
-            onClick={() => navigate(tab.path)}
-          >
-            <IonIcon icon={tab.icon} />
-            <IonLabel className="text-xs">{tab.label}</IonLabel>
-          </IonTabButton>
-        ))}
-      </IonTabBar>
+      {/* 底部导航：IonTabBar 有 contain:strict 会裁剪溢出，
+          所以凸起按钮必须放在 TabBar 外层的相对容器里做绝对定位 */}
+      <div className="relative">
+        <IonTabBar>
+          {TABS.slice(0, 2).map((tab) => (
+            <IonTabButton
+              key={tab.path}
+              tab={tab.path}
+              selected={isActive(pathname, tab.path, tab.end)}
+              onClick={() => navigate(tab.path)}
+            >
+              <IonIcon icon={tab.icon} />
+              <IonLabel className="text-xs">{tab.label}</IonLabel>
+            </IonTabButton>
+          ))}
+
+          {/* 给中间凸起按钮留位 */}
+          <div className="w-16 shrink-0" aria-hidden="true" />
+
+          {TABS.slice(2).map((tab) => (
+            <IonTabButton
+              key={tab.path}
+              tab={tab.path}
+              selected={isActive(pathname, tab.path, tab.end)}
+              onClick={() => navigate(tab.path)}
+            >
+              <IonIcon icon={tab.icon} />
+              <IonLabel className="text-xs">{tab.label}</IonLabel>
+            </IonTabButton>
+          ))}
+        </IonTabBar>
+
+        {/* 居中凸起「记一笔」 */}
+        <button
+          type="button"
+          onClick={() => navigate('/transactions/new')}
+          aria-label="记一笔"
+          className="absolute left-1/2 top-0 z-20 flex size-14 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-0.5 rounded-full border-4 border-background bg-primary text-primary-foreground shadow-lg transition-transform active:scale-95"
+        >
+          <IonIcon icon={add} className="text-2xl" />
+          <span className="text-[10px] font-medium leading-none">记账</span>
+        </button>
+      </div>
     </IonPage>
   )
 }
