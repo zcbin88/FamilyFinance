@@ -231,7 +231,7 @@ export default function TransactionsPage() {
                       <IonItem button detail={false} onClick={() => setEditing(tx)}>
                         <span
                           slot="start"
-                          className="flex size-10 items-center justify-center rounded-full"
+                          className="me-3 flex size-10 items-center justify-center rounded-full"
                           style={{ backgroundColor: `${cat?.color ?? '#6b7280'}1f` }}
                         >
                           <CategoryIcon
@@ -256,16 +256,11 @@ export default function TransactionsPage() {
                               {formatMoney(tx.amount)}
                             </span>
                           </div>
-                          <p className="m-0 mt-0.5 truncate text-xs text-muted-foreground">
-                            {tx.note && (
-                              <>
-                                {tx.note}
-                                <span className="mx-1.5">·</span>
-                              </>
-                            )}
-                            {tx.pay_method ?? '现金'}
-                            <span className="mx-1.5">·</span>
-                            {recorder?.name ?? '未知'}
+                          <p className="m-0 mt-0.5 flex items-center gap-3 text-xs text-muted-foreground">
+                            <span className="min-w-0 flex-1 truncate">{tx.note}</span>
+                            <span className="shrink-0">
+                              {tx.pay_method ?? '现金'} · {recorder?.name ?? '未知'}
+                            </span>
                           </p>
                         </IonLabel>
                       </IonItem>

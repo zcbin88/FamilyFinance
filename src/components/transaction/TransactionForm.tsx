@@ -108,13 +108,12 @@ export default function TransactionForm({
       <div className="space-y-1.5">
         <IonInput
           inputmode="decimal"
-          fill="outline"
           label="金额（元）"
           labelPlacement="stacked"
           placeholder="0.00"
           value={amount}
           onIonInput={(e) => setAmount(e.detail.value ?? '')}
-          className={cn('tx-amount', amountInvalid && 'ion-invalid ion-touched')}
+          className={cn('form-field tx-amount', amountInvalid && 'ion-invalid ion-touched')}
           autoFocus
         />
         {amountInvalid && <p className="px-1 text-sm text-destructive">请输入大于 0 的金额</p>}
@@ -157,7 +156,7 @@ export default function TransactionForm({
       <div className="grid grid-cols-2 gap-3">
         <IonInput
           type="date"
-          fill="outline"
+          className="form-field"
           label="日期"
           labelPlacement="stacked"
           value={format(occurredAt, 'yyyy-MM-dd')}
@@ -169,7 +168,7 @@ export default function TransactionForm({
 
         <IonSelect
           interface="action-sheet"
-          fill="outline"
+          className="form-field"
           label="付款方式"
           labelPlacement="stacked"
           placeholder="不选"
@@ -187,7 +186,7 @@ export default function TransactionForm({
 
       {/* 备注 */}
       <IonTextarea
-        fill="outline"
+        className="form-field"
         label="备注"
         labelPlacement="stacked"
         placeholder="例如：和老婆的晚餐"

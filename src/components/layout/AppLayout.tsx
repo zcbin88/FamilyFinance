@@ -72,8 +72,8 @@ export default function AppLayout() {
             </IonTabButton>
           ))}
 
-          {/* 给中间凸起按钮留位 */}
-          <div className="w-16 shrink-0" aria-hidden="true" />
+          {/* 给中间凸起按钮留位（宽度大于按钮，避免与左右 Tab 误触） */}
+          <div className="w-24 shrink-0" aria-hidden="true" />
 
           {TABS.slice(2).map((tab) => (
             <IonTabButton

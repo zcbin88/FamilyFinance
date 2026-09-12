@@ -189,17 +189,41 @@
     }
 }
 
-/* Ionic 表单细节：金额输入放大，突出主操作 */
-.tx-amount::part(native) {
-  font-size: 1.75rem;
-  font-weight: 600;
-}
-
-/* 数字/日期输入去掉 Ionic 聚焦高亮下划线，改用 fill=outline 容器 */
-.tx-amount {
+/* Ionic 表单字段统一边框：
+   Ionic 的 fill="outline" 仅在 md（安卓）模式生效，iOS 下没有边框；
+   且 md 的边框颜色取自 --highlight-color，聚焦时容易被自定义成空白。
+   这里改为在 host 上直接画边框，两个平台完全一致。 */
+.form-field {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  transition: border-color 0.15s ease;
+  --highlight-height: 0px;
   --highlight-color-focused: transparent;
   --highlight-color-valid: transparent;
   --highlight-color-invalid: transparent;
+  --border-width: 0;
+  --border-style: none;
+  --border-color: transparent;
+  --padding-start: 12px;
+  --padding-end: 12px;
+}
+
+.form-field:focus-within,
+.form-field.has-focus {
+  border-color: var(--primary);
+}
+
+.form-field.ion-invalid.ion-touched {
+  border-color: var(--destructive);
+}
+
+/* 金额输入放大，突出主操作 */
+.tx-amount::part(native) {
+  font-size: 1.75rem;
+  font-weight: 600;
 }
 
 /* ============================================================
