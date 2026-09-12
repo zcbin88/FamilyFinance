@@ -192,7 +192,18 @@
 /* Ionic 表单字段统一边框：
    Ionic 的 fill="outline" 仅在 md（安卓）模式生效，iOS 下没有边框；
    且 md 的边框颜色取自 --highlight-color，聚焦时容易被自定义成空白。
-   这里改为在 host 上直接画边框，两个平台完全一致。 */
+   这里改为在 host 上直接画边框，两个平台完全一致。
+
+   ⚠️ 下面的自定义属性必须带 !important：
+   ion-input / ion-textarea 在 Ionic 9 里是 scoped（非 Shadow）组件，
+   它们的 :host 样式由 Stencil 运行时注入到 <head>，
+   而且插入规则是「插到 head 里第一个 <style> 之前，没有 <style> 就 appendChild 到末尾」——
+   · dev：Vite 用 <style> 注入本文件，Ionic 的样式插到了它前面，本文件后来居上 ✅
+   · 生产：本文件是 <link rel=stylesheet>，head 里没有 <style>，
+     Ionic 的样式被 append 到 head 末尾，于是 .sc-ion-input-md-h{--padding-start:0px}
+     与本规则同为 (0,1,0) 优先级但顺序在后 → 盖掉这里所有变量 ❌
+   （同理 ::part() 在 scoped 组件上无效，见下方 .tx-amount）
+   加 !important 后不再依赖样式注入顺序。 */
 .form-field {
   display: block;
   width: 100%;
@@ -200,17 +211,17 @@
   border-radius: var(--radius-lg);
   background: var(--card);
   transition: border-color 0.15s ease;
-  --highlight-height: 0px;
+  --highlight-height: 0px !important;
   /* ion-input/ion-textarea 的 caret-color 取自 --highlight-color，
      不能设成 transparent，否则光标会一起消失 */
-  --highlight-color-focused: var(--primary);
-  --highlight-color-valid: var(--foreground);
-  --highlight-color-invalid: var(--destructive);
-  --border-width: 0;
-  --border-style: none;
-  --border-color: transparent;
-  --padding-start: 12px;
-  --padding-end: 12px;
+  --highlight-color-focused: var(--primary) !important;
+  --highlight-color-valid: var(--foreground) !important;
+  --highlight-color-invalid: var(--destructive) !important;
+  --border-width: 0 !important;
+  --border-style: none !important;
+  --border-color: transparent !important;
+  --padding-start: 12px !important;
+  --padding-end: 12px !important;
 }
 
 .form-field:focus-within,
@@ -222,10 +233,14 @@
   border-color: var(--destructive);
 }
 
-/* 金额输入放大，突出主操作 */
-.tx-amount::part(native) {
-  font-size: 1.75rem;
-  font-weight: 600;
+/* 金额输入放大，突出主操作。
+   注意：Ionic 9 的 ion-input 是 scoped 组件（没有 ShadowRoot、也没有 part 属性），
+   ::part(native) 是永远不生效的死选择器，要直接命中内部的 .native-input。
+   它自身写了 font-size:inherit，与本规则同优先级，仍需 !important 才能稳定生效。 */
+.tx-amount .native-input {
+  /* 比正文大一号即可（1.25rem = 20px），过大会撑高输入框 */
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
 }
 
 /* ============================================================
