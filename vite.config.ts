@@ -12,6 +12,19 @@ export default defineConfig({
   // 兼容旧版 Safari：Vite 8 默认 target 是 safari16.4（Baseline 2025-05），
   // 旧 iPhone（iOS 15.x / 16.0-16.3）会因 class static block 等语法直接白屏。
   // 降到 safari15.4（= iOS 15.4，覆盖所有仍可安装 iOS 15 的机型）。
+  // 注意：Vite 8 用 Oxc + Rolldown，build.target 只作用于生产构建；
+  // dev 模式必须分别设置源码转换（oxc）和依赖预构建（optimizeDeps）的 target，
+  // 否则依赖产物（如 radix-ui 的 class static block）仍会让旧 iPhone 白屏。
+  oxc: {
+    target: ['es2021', 'safari15.4'],
+  },
+  optimizeDeps: {
+    rolldownOptions: {
+      transform: {
+        target: ['es2021', 'safari15.4'],
+      },
+    },
+  },
   build: {
     target: ['safari15.4', 'ios15.4'],
   },
