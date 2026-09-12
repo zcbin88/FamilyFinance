@@ -69,8 +69,8 @@ export default function AppLayout() {
               // IonTabBar 只接受 ion-tab-button，普通 div 占位会被丢弃，
               // 因此用相邻两个 Tab 的 margin 撑出中间凸起按钮的空档
               style={{
-                ...(index === 1 ? { marginInlineEnd: '2.75rem' } : {}),
-                ...(index === 2 ? { marginInlineStart: '2.75rem' } : {}),
+                ...(index === 1 ? { marginInlineEnd: '2.5rem' } : {}),
+                ...(index === 2 ? { marginInlineStart: '2.5rem' } : {}),
               }}
             >
               <IonIcon icon={tab.icon} />
@@ -84,7 +84,7 @@ export default function AppLayout() {
           type="button"
           onClick={() => navigate('/transactions/new')}
           aria-label="记一笔"
-          className="absolute left-1/2 top-0 z-20 flex size-14 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-0.5 rounded-full bg-primary text-primary-foreground shadow-lg transition-transform active:scale-95"
+          className="absolute left-1/2 top-0 z-20 flex size-14 -translate-x-1/2 -translate-y-4 flex-col items-center justify-center gap-0.5 rounded-full bg-primary text-primary-foreground shadow-lg transition-transform active:scale-95"
         >
           <IonIcon icon={add} className="text-2xl" />
           <span className="text-[10px] font-medium leading-none">记账</span>
