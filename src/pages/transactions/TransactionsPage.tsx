@@ -5,6 +5,15 @@ import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { CalendarIcon, Pencil, Plus, Trash2 } from 'lucide-react'
 import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonModal,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/react'
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -16,12 +25,6 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Calendar } from '@/components/ui/calendar'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -290,24 +293,31 @@ export default function TransactionsPage() {
         })
       )}
 
-      {/* 编辑对话框 */}
-      <Dialog open={!!editing} onOpenChange={(open) => !open && setEditing(null)}>
-        <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>编辑账单</DialogTitle>
-          </DialogHeader>
-          {editing && family && currentLedger && (
-            <TransactionForm
-              key={editing.id}
-              familyId={family.id}
-              initial={editing}
-              submitting={updateTx.isPending}
-              onSubmit={handleUpdate}
-              submitLabel="保存修改"
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* 编辑：Ionic 全屏 Modal（移动端原生页面级编辑体验） */}
+      <IonModal isOpen={!!editing} onDidDismiss={() => setEditing(null)}>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>编辑账单</IonTitle>
+            <IonButtons slot="end">
+              <IonButton onClick={() => setEditing(null)}>关闭</IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent>
+          <div className="mx-auto w-full max-w-lg px-4 py-5">
+            {editing && family && currentLedger && (
+              <TransactionForm
+                key={editing.id}
+                familyId={family.id}
+                initial={editing}
+                submitting={updateTx.isPending}
+                onSubmit={handleUpdate}
+                submitLabel="保存修改"
+              />
+            )}
+          </div>
+        </IonContent>
+      </IonModal>
 
       {/* 删除确认 */}
       <AlertDialog open={!!deleting} onOpenChange={(open) => !open && setDeleting(null)}>
