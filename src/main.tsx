@@ -4,6 +4,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { IonApp, setupIonicReact } from '@ionic/react'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Toaster } from 'sonner'
 import './index.css'
@@ -13,6 +14,9 @@ import { registerSW } from 'virtual:pwa-register'
 
 // 注册 Service Worker（PWA：离线缓存 + 自动更新）
 registerSW({ immediate: true })
+
+// 初始化 Ionic（iOS/Android 各自的原生观感）
+setupIonicReact()
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,15 +30,17 @@ const queryClient = new QueryClient({
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <TooltipProvider>
-            <App />
-            <Toaster richColors position="top-center" />
-          </TooltipProvider>
-        </AuthProvider>
-      </QueryClientProvider>
-    </BrowserRouter>
+    <IonApp>
+      <BrowserRouter>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <TooltipProvider>
+              <App />
+              <Toaster richColors position="top-center" />
+            </TooltipProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </BrowserRouter>
+    </IonApp>
   </StrictMode>,
 )

@@ -1,93 +1,62 @@
 import { useState } from 'react'
-import { Check, ChevronsUpDown, Plus } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Skeleton } from '@/components/ui/skeleton'
+import { IonActionSheet, IonButton, IonIcon, IonSkeletonText } from '@ionic/react'
+import { add, checkmark, chevronDown } from 'ionicons/icons'
 import LedgerDialog from '@/components/ledger/LedgerDialog'
 import { useLedgerContext } from '@/context/LedgerProvider'
 import { useCurrentFamily } from '@/hooks/useFamily'
 import { LedgerIcon } from '@/lib/ledger-presets'
-import { cn } from '@/lib/utils'
 
-export default function LedgerSwitcher({
-  compact = false,
-  className,
-}: {
-  compact?: boolean
-  className?: string
-}) {
+/** 顶部栏账本切换：Ionic 原生 ActionSheet，移动端单手持握即可操作 */
+export default function LedgerSwitcher() {
   const { ledgers, currentLedger, isLoading, setCurrentLedger } = useLedgerContext()
   const { data: family } = useCurrentFamily()
+  const [sheetOpen, setSheetOpen] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
+
+  const buttons = [
+    ...(ledgers ?? []).map((ledger) => ({
+      text: ledger.name,
+      icon: ledger.id === currentLedger?.id ? checkmark : undefined,
+      handler: () => setCurrentLedger(ledger.id),
+    })),
+    { text: '新建账本', icon: add, handler: () => setDialogOpen(true) },
+    { text: '取消', role: 'cancel' as const },
+  ]
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            size={compact ? 'sm' : 'default'}
-            className={cn(
-              'justify-between gap-2',
-              compact ? '' : 'w-full',
-              className,
-            )}
-            disabled={isLoading || !currentLedger}
-          >
-            {isLoading ? (
-              <Skeleton className="h-4 w-16" />
-            ) : (
-              <span className="flex min-w-0 items-center gap-2">
-                {currentLedger && (
-                  <LedgerIcon
-                    icon={currentLedger.icon}
-                    color={currentLedger.color}
-                    className="size-4 shrink-0"
-                  />
-                )}
-                <span className="truncate">{currentLedger?.name ?? '选择账本'}</span>
-              </span>
-            )}
-            <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-56">
-          <DropdownMenuLabel>我的账本</DropdownMenuLabel>
-          {ledgers?.map((ledger) => (
-            <DropdownMenuItem
-              key={ledger.id}
-              onClick={() => setCurrentLedger(ledger.id)}
-              className="justify-between gap-2"
-            >
-              <span className="flex min-w-0 items-center gap-2">
-                <LedgerIcon icon={ledger.icon} color={ledger.color} className="size-4 shrink-0" />
-                <span className="truncate">{ledger.name}</span>
-              </span>
-              <span className="flex shrink-0 items-center gap-1">
-                {ledger.is_default && (
-                  <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
-                    默认
-                  </Badge>
-                )}
-                {ledger.id === currentLedger?.id && <Check className="size-4 text-primary" />}
-              </span>
-            </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setDialogOpen(true)}>
-            <Plus className="size-4" />
-            新建账本
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <IonButton
+        fill="clear"
+        size="small"
+        color="medium"
+        disabled={isLoading || !currentLedger}
+        onClick={() => setSheetOpen(true)}
+      >
+        <span slot="start" className="flex items-center">
+          {currentLedger && (
+            <LedgerIcon
+              icon={currentLedger.icon}
+              color={currentLedger.color}
+              className="size-4 shrink-0"
+            />
+          )}
+        </span>
+        {isLoading ? (
+          <IonSkeletonText animated style={{ width: 56, height: 14, borderRadius: 4 }} />
+        ) : (
+          <span className="block max-w-28 truncate text-sm font-medium">
+            {currentLedger?.name ?? '选择账本'}
+          </span>
+        )}
+        <IonIcon slot="end" icon={chevronDown} className="text-xs opacity-60" />
+      </IonButton>
+
+      <IonActionSheet
+        isOpen={sheetOpen}
+        header="我的账本"
+        buttons={buttons}
+        onDidDismiss={() => setSheetOpen(false)}
+      />
 
       <LedgerDialog
         open={dialogOpen}

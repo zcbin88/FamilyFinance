@@ -1,3 +1,16 @@
+/* Ionic 基础样式：先声明独立 layer 并优先导入，
+   保证 Tailwind 工具类（后声明的 layer）可以覆盖 Ionic 的元素级样式 */
+@layer ionic;
+@import "@ionic/react/css/core.css" layer(ionic);
+@import "@ionic/react/css/normalize.css" layer(ionic);
+@import "@ionic/react/css/structure.css" layer(ionic);
+@import "@ionic/react/css/typography.css" layer(ionic);
+@import "@ionic/react/css/padding.css" layer(ionic);
+@import "@ionic/react/css/flex-utils.css" layer(ionic);
+@import "@ionic/react/css/text-alignment.css" layer(ionic);
+@import "@ionic/react/css/text-transformation.css" layer(ionic);
+@import "@ionic/react/css/display.css" layer(ionic);
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -81,6 +94,45 @@
     --sidebar-accent-foreground: oklch(0.36 0.02 60);
     --sidebar-border: oklch(0.908 0.009 80);
     --sidebar-ring: oklch(0.65 0.13 80);
+
+    /* ===== Ionic 主题：沿用品牌鎏金 ===== */
+    --ion-font-family: 'Geist Variable', 'PingFang SC', 'Hiragino Sans GB',
+        'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+    --ion-background-color: #fbf9f4;
+    --ion-background-color-rgb: 251, 249, 244;
+    --ion-text-color: #3a3226;
+    --ion-text-color-rgb: 58, 50, 38;
+    --ion-item-background: #ffffff;
+    --ion-toolbar-background: #fbf9f4;
+    --ion-card-background: #ffffff;
+
+    --ion-color-primary: #b88513;
+    --ion-color-primary-rgb: 184, 133, 19;
+    --ion-color-primary-contrast: #ffffff;
+    --ion-color-primary-contrast-rgb: 255, 255, 255;
+    --ion-color-primary-shade: #a27511;
+    --ion-color-primary-tint: #bf912b;
+
+    --ion-color-secondary: #8a6d1f;
+    --ion-color-secondary-rgb: 138, 109, 31;
+    --ion-color-secondary-contrast: #ffffff;
+    --ion-color-secondary-contrast-rgb: 255, 255, 255;
+    --ion-color-secondary-shade: #79601b;
+    --ion-color-secondary-tint: #967c35;
+
+    --ion-color-success: #16a34a;
+    --ion-color-success-rgb: 22, 163, 74;
+    --ion-color-success-contrast: #ffffff;
+    --ion-color-success-contrast-rgb: 255, 255, 255;
+    --ion-color-success-shade: #138f41;
+    --ion-color-success-tint: #2dac5c;
+
+    --ion-color-danger: #d13b2b;
+    --ion-color-danger-rgb: 209, 59, 43;
+    --ion-color-danger-contrast: #ffffff;
+    --ion-color-danger-contrast-rgb: 255, 255, 255;
+    --ion-color-danger-shade: #b83426;
+    --ion-color-danger-tint: #d64f40;
 }
 
 .dark {
@@ -126,6 +178,5 @@
     }
   html {
     @apply font-sans;
-    font-size: 17px;
     }
 }
