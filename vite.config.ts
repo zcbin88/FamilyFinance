@@ -25,6 +25,18 @@ export default defineConfig({
       },
     },
   },
+  // iOS 15.x 的 Safari 只支持 lab()，不支持 oklch()/oklab()（真机 CSS.supports 实测为 false），
+  // 而 Tailwind v4 整套调色盘（含默认色阶）都是 oklch，会导致所有颜色/背景/边框失效。
+  // 用 Lightning CSS 按 Safari 15.0 降级，把 oklch/oklab 转换成 lab。
+  css: {
+    transformer: 'lightningcss',
+    lightningcss: {
+      targets: {
+        safari: 15 << 16,
+        ios_saf: 15 << 16,
+      },
+    },
+  },
   build: {
     target: ['safari15.4', 'ios15.4'],
   },

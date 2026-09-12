@@ -201,3 +201,79 @@
   --highlight-color-valid: transparent;
   --highlight-color-invalid: transparent;
 }
+
+/* ============================================================
+   iOS 15.x Safari 兼容（不支持 oklch / color-mix）
+   Lightning CSS 会把 oklch 降级为 lab，但
+   color-mix(..., var(--x) N%, transparent) 因为依赖变量无法在构建期计算，
+   会被降级成不带透明度的纯色（bg-primary/10 会变成实心金）。
+   这里用字面量颜色重写这些透明度工具类，
+   Lightning CSS 会算出带 alpha 的 lab()。
+   注：仅覆盖应用当前用到的类；暗色模式未启用故未处理。
+   ============================================================ */
+.bg-primary\/10 {
+  background-color: color-mix(in oklab, oklch(0.65 0.13 80) 10%, transparent);
+}
+.bg-primary\/80 {
+  background-color: color-mix(in oklab, oklch(0.65 0.13 80) 80%, transparent);
+}
+.bg-muted\/40 {
+  background-color: color-mix(in oklab, oklch(0.955 0.01 80) 40%, transparent);
+}
+.bg-muted\/50 {
+  background-color: color-mix(in oklab, oklch(0.955 0.01 80) 50%, transparent);
+}
+.bg-secondary\/80 {
+  background-color: color-mix(in oklab, oklch(0.955 0.01 80) 80%, transparent);
+}
+.bg-destructive\/10 {
+  background-color: color-mix(in oklab, oklch(0.56 0.18 27) 10%, transparent);
+}
+.bg-destructive\/20 {
+  background-color: color-mix(in oklab, oklch(0.56 0.18 27) 20%, transparent);
+}
+.bg-destructive\/30 {
+  background-color: color-mix(in oklab, oklch(0.56 0.18 27) 30%, transparent);
+}
+.bg-destructive\/90 {
+  background-color: color-mix(in oklab, oklch(0.56 0.18 27) 90%, transparent);
+}
+.bg-input\/30 {
+  background-color: color-mix(in oklab, oklch(0.912 0.009 80) 30%, transparent);
+}
+.bg-input\/50 {
+  background-color: color-mix(in oklab, oklch(0.912 0.009 80) 50%, transparent);
+}
+.bg-input\/80 {
+  background-color: color-mix(in oklab, oklch(0.912 0.009 80) 80%, transparent);
+}
+.border-primary\/20 {
+  border-color: color-mix(in oklab, oklch(0.65 0.13 80) 20%, transparent);
+}
+.border-border\/50 {
+  border-color: color-mix(in oklab, oklch(0.912 0.009 80) 50%, transparent);
+}
+.border-destructive\/40 {
+  border-color: color-mix(in oklab, oklch(0.56 0.18 27) 40%, transparent);
+}
+.border-destructive\/50 {
+  border-color: color-mix(in oklab, oklch(0.56 0.18 27) 50%, transparent);
+}
+.ring-ring\/50 {
+  --tw-ring-color: color-mix(in oklab, oklch(0.65 0.13 80) 50%, transparent);
+}
+.ring-foreground\/10 {
+  --tw-ring-color: color-mix(in oklab, oklch(0.25 0.018 60) 10%, transparent);
+}
+.ring-destructive\/20 {
+  --tw-ring-color: color-mix(in oklab, oklch(0.56 0.18 27) 20%, transparent);
+}
+.ring-destructive\/40 {
+  --tw-ring-color: color-mix(in oklab, oklch(0.56 0.18 27) 40%, transparent);
+}
+.text-foreground\/60 {
+  color: color-mix(in oklab, oklch(0.25 0.018 60) 60%, transparent);
+}
+.stroke-border\/50 {
+  stroke: color-mix(in oklab, oklch(0.912 0.009 80) 50%, transparent);
+}
