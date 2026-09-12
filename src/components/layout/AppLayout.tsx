@@ -69,8 +69,8 @@ export default function AppLayout() {
               // IonTabBar 只接受 ion-tab-button，普通 div 占位会被丢弃，
               // 因此用相邻两个 Tab 的 margin 撑出中间凸起按钮的空档
               style={{
-                ...(index === 1 ? { marginInlineEnd: '3rem' } : {}),
-                ...(index === 2 ? { marginInlineStart: '3rem' } : {}),
+                ...(index === 1 ? { marginInlineEnd: '2.75rem' } : {}),
+                ...(index === 2 ? { marginInlineStart: '2.75rem' } : {}),
               }}
             >
               <IonIcon icon={tab.icon} />
