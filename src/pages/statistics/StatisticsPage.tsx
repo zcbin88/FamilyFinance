@@ -1,9 +1,7 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { zhCN } from 'date-fns/locale'
-import { CalendarIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
+import { IonButton, IonDatetime, IonIcon, IonModal } from '@ionic/react'
+import { calendarClearOutline, chevronBack, chevronForward } from 'ionicons/icons'
 import {
   Card,
   CardContent,
@@ -11,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import CategoryPie from '@/components/stats/CategoryPie'
 import MemberStats from '@/components/stats/MemberStats'
 import TrendChart from '@/components/stats/TrendChart'
@@ -26,7 +23,7 @@ export default function StatisticsPage() {
   const { currentLedger } = useLedgerContext()
 
   const [month, setMonth] = useState(() => format(new Date(), 'yyyy-MM'))
-  const [monthPickerOpen, setMonthPickerOpen] = useState(false)
+  const [monthOpen, setMonthOpen] = useState(false)
 
   const { data: result, isLoading } = useTransactions(currentLedger?.id, month)
 
@@ -44,44 +41,43 @@ export default function StatisticsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">统计</h1>
-          <p className="text-sm text-muted-foreground">
-            {currentLedger?.name ?? '…'} · 收支分析与趋势
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => changeMonth(-1)}>
-            上月
-          </Button>
-          <Popover open={monthPickerOpen} onOpenChange={setMonthPickerOpen}>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="min-w-24">
-                <CalendarIcon className="size-4" />
-                {month}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <Calendar
-                mode="single"
-                selected={new Date(`${month}-01T00:00:00`)}
-                onSelect={(d) => {
-                  if (d) {
-                    setMonth(format(d, 'yyyy-MM'))
-                    setMonthPickerOpen(false)
-                  }
-                }}
-                locale={zhCN}
-                autoFocus
-              />
-            </PopoverContent>
-          </Popover>
-          <Button variant="outline" size="sm" onClick={() => changeMonth(1)}>
-            下月
-          </Button>
-        </div>
+      <div>
+        <h1 className="text-2xl font-semibold">统计</h1>
+        <p className="text-sm text-muted-foreground">
+          {currentLedger?.name ?? '…'} · 收支分析与趋势
+        </p>
       </div>
+
+      {/* 月份切换：IonDatetime month-year 原生月份选择 */}
+      <div className="flex items-center justify-between rounded-xl border bg-card px-1 py-1">
+        <IonButton fill="clear" size="small" onClick={() => changeMonth(-1)} aria-label="上月">
+          <IonIcon slot="icon-only" icon={chevronBack} />
+        </IonButton>
+
+        <IonButton fill="clear" size="small" onClick={() => setMonthOpen(true)}>
+          <IonIcon slot="start" icon={calendarClearOutline} />
+          {month}
+        </IonButton>
+
+        <IonButton fill="clear" size="small" onClick={() => changeMonth(1)} aria-label="下月">
+          <IonIcon slot="icon-only" icon={chevronForward} />
+        </IonButton>
+      </div>
+
+      <IonModal isOpen={monthOpen} onDidDismiss={() => setMonthOpen(false)}>
+        <IonDatetime
+          presentation="month-year"
+          locale="zh-CN"
+          value={month}
+          onIonChange={(e) => {
+            const v = e.detail.value
+            if (typeof v === 'string' && v) {
+              setMonth(v.slice(0, 7))
+              setMonthOpen(false)
+            }
+          }}
+        />
+      </IonModal>
 
       {/* 当月收支对比 */}
       <div className="grid grid-cols-3 gap-4">

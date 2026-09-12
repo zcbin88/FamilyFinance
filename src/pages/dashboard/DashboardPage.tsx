@@ -2,7 +2,6 @@ import { useMemo } from 'react'
 import { Link } from 'react-router'
 import { format } from 'date-fns'
 import { ArrowRight, Wallet } from 'lucide-react'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -124,38 +123,35 @@ export default function DashboardPage() {
                   const cat = categoryMap.get(tx.category_id)
                   const recorder = result?.profileMap.get(tx.user_id)
                   return (
-                    <li key={tx.id} className="flex items-center gap-3 py-2.5">
+                    <li key={tx.id} className="flex items-center gap-3 py-3">
                       <span
-                        className="flex size-9 shrink-0 items-center justify-center rounded-full"
+                        className="flex size-10 shrink-0 items-center justify-center rounded-full"
                         style={{ backgroundColor: `${cat?.color ?? '#6b7280'}1f` }}
                       >
-                        <CategoryIcon icon={cat?.icon ?? 'ellipsis'} color={cat?.color} className="size-4" />
+                        <CategoryIcon icon={cat?.icon ?? 'ellipsis'} color={cat?.color} className="size-5" />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">
-                          {cat?.name ?? '未知分类'}
-                          {tx.note && (
-                            <span className="ml-2 font-normal text-muted-foreground">{tx.note}</span>
-                          )}
-                        </p>
-                        <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Avatar className="size-3.5">
-                            <AvatarFallback className="text-[8px]">
-                              {(recorder?.name ?? '?').slice(0, 1)}
-                            </AvatarFallback>
-                          </Avatar>
-                          {recorder?.name ?? '未知'} · {tx.occurred_at.slice(5)}
+                        <div className="flex items-baseline gap-3">
+                          <p className="m-0 min-w-0 flex-1 truncate text-sm font-medium">
+                            {cat?.name ?? '未知分类'}
+                          </p>
+                          <span
+                            className={cn(
+                              'shrink-0 text-sm font-semibold tabular-nums',
+                              tx.type === 'expense' ? 'text-green-600' : 'text-red-600',
+                            )}
+                          >
+                            {tx.type === 'expense' ? '-' : '+'}
+                            {formatMoney(tx.amount)}
+                          </span>
+                        </div>
+                        <p className="m-0 mt-0.5 flex items-center gap-3 text-xs text-muted-foreground">
+                          <span className="min-w-0 flex-1 truncate">{tx.note}</span>
+                          <span className="shrink-0">
+                            {recorder?.name ?? '未知'} · {tx.occurred_at.slice(5)}
+                          </span>
                         </p>
                       </div>
-                      <p
-                        className={cn(
-                          'text-sm font-semibold',
-                          tx.type === 'expense' ? 'text-green-600' : 'text-red-600',
-                        )}
-                      >
-                        {tx.type === 'expense' ? '-' : '+'}
-                        {formatMoney(tx.amount)}
-                      </p>
                     </li>
                   )
                 })}
