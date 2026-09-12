@@ -61,11 +61,6 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">设置</h1>
-        <p className="text-sm text-muted-foreground">个人信息、家庭、账本、分类管理</p>
-      </div>
-
       {/* 账号入口（点击进入个人资料页） */}
       <Card>
         <CardHeader>

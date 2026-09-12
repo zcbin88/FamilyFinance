@@ -1,5 +1,6 @@
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import {
+  IonButton,
   IonButtons,
   IonContent,
   IonHeader,
@@ -13,13 +14,14 @@ import {
 } from '@ionic/react'
 import {
   add,
+  arrowBack,
   barChartOutline,
   gridOutline,
   listOutline,
   settingsOutline,
 } from 'ionicons/icons'
 import LedgerSwitcher from '@/components/layout/LedgerSwitcher'
-import { useCurrentFamily } from '@/hooks/useFamily'
+import PullToRefresh from '@/components/common/PullToRefresh'
 
 const TABS = [
   { path: '/', label: '首页', icon: gridOutline, end: true },
@@ -28,6 +30,20 @@ const TABS = [
   { path: '/settings', label: '设置', icon: settingsOutline, end: false },
 ]
 
+/** 顶部栏标题：页面标题放这里，省下正文区的垂直空间 */
+const PAGE_TITLES: Record<string, string> = {
+  '/': '仪表盘',
+  '/transactions': '明细',
+  '/statistics': '统计',
+  '/settings': '设置',
+  '/settings/profile': '账号信息',
+}
+
+/** 子页面：顶部栏出现返回按钮，并隐藏账本切换 */
+const SUB_PAGES: Record<string, string> = {
+  '/settings/profile': '/settings',
+}
+
 function isActive(pathname: string, path: string, end: boolean) {
   return end ? pathname === path : pathname === path || pathname.startsWith(`${path}/`)
 }
@@ -35,22 +51,34 @@ function isActive(pathname: string, path: string, end: boolean) {
 export default function AppLayout() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
-  const { data: family } = useCurrentFamily()
+  const backTo = SUB_PAGES[pathname]
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
+          {backTo && (
+            <IonButtons slot="start">
+              <IonButton onClick={() => navigate(backTo)} aria-label="返回">
+                <IonIcon slot="icon-only" icon={arrowBack} />
+              </IonButton>
+            </IonButtons>
+          )}
           <IonTitle className="text-base font-semibold">
-            {family?.name || '家庭账本'}
+            {PAGE_TITLES[pathname] ?? '家庭账本'}
           </IonTitle>
-          <IonButtons slot="end">
-            <LedgerSwitcher />
-          </IonButtons>
+          {!backTo && (
+            <IonButtons slot="end">
+              <LedgerSwitcher />
+            </IonButtons>
+          )}
         </IonToolbar>
       </IonHeader>
 
       <IonContent>
+        {/* 下拉刷新：首页 / 明细 / 统计 / 设置 / 账号信息 共用此 IonContent */}
+        <PullToRefresh />
+
         <div className="mx-auto w-full max-w-3xl px-4 pb-28 pt-4">
           <Outlet />
         </div>

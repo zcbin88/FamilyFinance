@@ -28,7 +28,7 @@ export default function LedgerSwitcher() {
       <IonButton
         fill="clear"
         size="small"
-        color="medium"
+        color="primary"
         disabled={isLoading || !currentLedger}
         onClick={() => setSheetOpen(true)}
       >
@@ -52,6 +52,7 @@ export default function LedgerSwitcher() {
       </IonButton>
 
       <IonActionSheet
+        className="ledger-sheet"
         isOpen={sheetOpen}
         header="我的账本"
         buttons={buttons}

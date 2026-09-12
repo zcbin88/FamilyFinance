@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
@@ -7,7 +7,6 @@ import {
   IonButton,
   IonButtons,
   IonContent,
-  IonDatetime,
   IonHeader,
   IonIcon,
   IonItem,
@@ -16,9 +15,7 @@ import {
   IonItemSliding,
   IonLabel,
   IonList,
-  IonListHeader,
   IonModal,
-  IonNote,
   IonSkeletonText,
   IonTitle,
   IonToolbar,
@@ -30,6 +27,7 @@ import {
   pencilOutline,
   trashOutline,
 } from 'ionicons/icons'
+import MonthPickerSheet from '@/components/common/MonthPickerSheet'
 import TransactionForm, { type TransactionFormValues } from '@/components/transaction/TransactionForm'
 import { useLedgerContext } from '@/context/LedgerProvider'
 import { useCurrentFamily } from '@/hooks/useFamily'
@@ -112,13 +110,9 @@ export default function TransactionsPage() {
 
   return (
     <div className="space-y-4">
-      {/* 头部 */}
-      <div>
-        <h1 className="text-2xl font-semibold">明细</h1>
-        <p className="text-sm text-muted-foreground">
-          账本：{currentLedger?.name ?? '…'}
-        </p>
-      </div>
+      <p className="text-sm text-muted-foreground">
+        账本：{currentLedger?.name ?? '…'}
+      </p>
 
       {/* 月份切换：IonDatetime month-year 原生月份选择 */}
       <div className="flex items-center justify-between rounded-xl border bg-card px-1 py-1">
@@ -136,25 +130,12 @@ export default function TransactionsPage() {
         </IonButton>
       </div>
 
-      <IonModal isOpen={monthOpen} onDidDismiss={() => setMonthOpen(false)}>
-        <IonContent>
-          <div className="flex h-full items-center justify-center px-2">
-            <IonDatetime
-              className="month-datetime"
-              presentation="month-year"
-              locale="zh-CN"
-              value={month}
-              onIonChange={(e) => {
-                const v = e.detail.value
-                if (typeof v === 'string' && v) {
-                  setMonth(v.slice(0, 7))
-                  setMonthOpen(false)
-                }
-              }}
-            />
-          </div>
-        </IonContent>
-      </IonModal>
+      <MonthPickerSheet
+        isOpen={monthOpen}
+        month={month}
+        onClose={() => setMonthOpen(false)}
+        onSelect={setMonth}
+      />
 
       {/* 月份汇总 */}
       {!isLoading && result && (
@@ -203,7 +184,7 @@ export default function TransactionsPage() {
           <p className="mt-3 text-muted-foreground">{month} 还没有账单</p>
         </div>
       ) : (
-        <IonList>
+        <div className="space-y-4">
           {groups.map(([date, txs]) => {
             const dayExpense = txs
               .filter((t) => t.type === 'expense')
@@ -213,84 +194,88 @@ export default function TransactionsPage() {
               .reduce((s, t) => s + t.amount, 0)
 
             return (
-              <Fragment key={date}>
-                <IonListHeader>
-                  <IonLabel className="text-sm">
+              <div key={date}>
+                {/* 日期小标题：卡片外，与旧版一致 */}
+                <div className="mb-1.5 flex items-center justify-between px-1">
+                  <p className="m-0 text-sm font-medium text-muted-foreground">
                     {format(new Date(`${date}T00:00:00`), 'M月d日 EEEE', { locale: zhCN })}
-                  </IonLabel>
-                  <IonNote slot="end" className="text-xs">
+                  </p>
+                  <p className="m-0 text-xs text-muted-foreground">
                     {dayIncome > 0 && (
                       <span className="text-red-600">收 {formatMoney(dayIncome)} </span>
                     )}
                     {dayExpense > 0 && (
                       <span className="text-green-600">支 {formatMoney(dayExpense)}</span>
                     )}
-                  </IonNote>
-                </IonListHeader>
+                  </p>
+                </div>
 
-                {txs.map((tx) => {
-                  const cat = categoryMap.get(tx.category_id)
-                  const recorder = profileMap?.get(tx.user_id)
-                  return (
-                    <IonItemSliding key={tx.id}>
-                      <IonItem
-                        lines="full"
-                        detail={false}
-                        onClick={() => setEditing(tx)}
-                        className="[--padding-start:0] [--inner-padding-end:0] [--min-height:0]"
-                      >
-                        <div className="flex w-full items-center gap-3 px-4 py-3">
-                          <span
-                            className="flex size-10 shrink-0 items-center justify-center rounded-full"
-                            style={{ backgroundColor: `${cat?.color ?? '#6b7280'}1f` }}
-                          >
-                            <CategoryIcon
-                              icon={cat?.icon ?? 'ellipsis'}
-                              color={cat?.color}
-                              className="size-5"
-                            />
-                          </span>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-baseline gap-3">
-                              <p className="m-0 min-w-0 flex-1 truncate text-sm font-medium">
-                                {cat?.name ?? '未知分类'}
+                {/* 一天一张卡片 */}
+                <div className="overflow-hidden rounded-xl border bg-card">
+                  {txs.map((tx, idx) => {
+                    const cat = categoryMap.get(tx.category_id)
+                    const recorder = profileMap?.get(tx.user_id)
+                    return (
+                      <IonItemSliding key={tx.id}>
+                        <IonItem
+                          lines={idx === txs.length - 1 ? 'none' : 'full'}
+                          detail={false}
+                          onClick={() => setEditing(tx)}
+                          className="[--background:var(--card)] [--border-color:var(--border)] [--padding-start:0] [--inner-padding-end:0] [--min-height:0]"
+                        >
+                          <div className="flex w-full items-center gap-3 px-4 py-3">
+                            <span
+                              className="flex size-10 shrink-0 items-center justify-center rounded-full"
+                              style={{ backgroundColor: `${cat?.color ?? '#6b7280'}1f` }}
+                            >
+                              <CategoryIcon
+                                icon={cat?.icon ?? 'ellipsis'}
+                                color={cat?.color}
+                                className="size-5"
+                              />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-baseline gap-3">
+                                <p className="m-0 min-w-0 flex-1 truncate text-sm font-medium">
+                                  {cat?.name ?? '未知分类'}
+                                </p>
+                                <span
+                                  className={cn(
+                                    'shrink-0 text-sm font-semibold tabular-nums',
+                                    tx.type === 'expense' ? 'text-green-600' : 'text-red-600',
+                                  )}
+                                >
+                                  {tx.type === 'expense' ? '-' : '+'}
+                                  {formatMoney(tx.amount)}
+                                </span>
+                              </div>
+                              <p className="m-0 mt-0.5 flex items-center gap-3 text-xs text-muted-foreground">
+                                <span className="min-w-0 flex-1 truncate">{tx.note}</span>
+                                <span className="shrink-0">
+                                  {tx.pay_method ?? '现金'} · {recorder?.name ?? '未知'}
+                                </span>
                               </p>
-                              <span
-                                className={cn(
-                                  'shrink-0 text-sm font-semibold tabular-nums',
-                                  tx.type === 'expense' ? 'text-green-600' : 'text-red-600',
-                                )}
-                              >
-                                {tx.type === 'expense' ? '-' : '+'}
-                                {formatMoney(tx.amount)}
-                              </span>
                             </div>
-                            <p className="m-0 mt-0.5 flex items-center gap-3 text-xs text-muted-foreground">
-                              <span className="min-w-0 flex-1 truncate">{tx.note}</span>
-                              <span className="shrink-0">
-                                {tx.pay_method ?? '现金'} · {recorder?.name ?? '未知'}
-                              </span>
-                            </p>
                           </div>
-                        </div>
-                      </IonItem>
+                        </IonItem>
 
-                      {/* 左滑操作：编辑 / 删除 */}
-                      <IonItemOptions side="end">
-                        <IonItemOption color="primary" onClick={() => setEditing(tx)}>
-                          <IonIcon slot="icon-only" icon={pencilOutline} />
-                        </IonItemOption>
-                        <IonItemOption color="danger" onClick={() => setDeleting(tx)}>
-                          <IonIcon slot="icon-only" icon={trashOutline} />
-                        </IonItemOption>
-                      </IonItemOptions>
-                    </IonItemSliding>
-                  )
-                })}
-              </Fragment>
+                        {/* 左滑操作：编辑 / 删除 */}
+                        <IonItemOptions side="end">
+                          <IonItemOption color="primary" onClick={() => setEditing(tx)}>
+                            <IonIcon slot="icon-only" icon={pencilOutline} />
+                          </IonItemOption>
+                          <IonItemOption color="danger" onClick={() => setDeleting(tx)}>
+                            <IonIcon slot="icon-only" icon={trashOutline} />
+                          </IonItemOption>
+                        </IonItemOptions>
+                      </IonItemSliding>
+                    )
+                  })}
+                </div>
+              </div>
             )
           })}
-        </IonList>
+        </div>
       )}
 
       {/* 编辑：Ionic 全屏 Modal */}

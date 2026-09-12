@@ -46,12 +46,10 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">仪表盘</h1>
-        <p className="text-sm text-muted-foreground">
-          {currentLedger?.name ?? '…'} · {month}
-        </p>
-      </div>
+      {/* 账本 / 月份：仅一行，不占额外空间 */}
+      <p className="text-sm text-muted-foreground">
+        {currentLedger?.name ?? '…'} · {month}
+      </p>
 
       {/* 本月概览 */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

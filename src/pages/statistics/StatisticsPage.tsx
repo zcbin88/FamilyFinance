@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { IonButton, IonContent, IonDatetime, IonIcon, IonModal } from '@ionic/react'
+import { IonButton, IonIcon } from '@ionic/react'
 import { calendarClearOutline, chevronBack, chevronForward } from 'ionicons/icons'
 import {
   Card,
@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import MonthPickerSheet from '@/components/common/MonthPickerSheet'
 import CategoryPie from '@/components/stats/CategoryPie'
 import MemberStats from '@/components/stats/MemberStats'
 import TrendChart from '@/components/stats/TrendChart'
@@ -41,12 +42,9 @@ export default function StatisticsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">统计</h1>
-        <p className="text-sm text-muted-foreground">
-          {currentLedger?.name ?? '…'} · 收支分析与趋势
-        </p>
-      </div>
+      <p className="text-sm text-muted-foreground">
+        {currentLedger?.name ?? '…'} · 收支分析与趋势
+      </p>
 
       {/* 月份切换：IonDatetime month-year 原生月份选择 */}
       <div className="flex items-center justify-between rounded-xl border bg-card px-1 py-1">
@@ -64,56 +62,45 @@ export default function StatisticsPage() {
         </IonButton>
       </div>
 
-      <IonModal isOpen={monthOpen} onDidDismiss={() => setMonthOpen(false)}>
-        <IonContent>
-          <div className="flex h-full items-center justify-center px-2">
-            <IonDatetime
-              className="month-datetime"
-              presentation="month-year"
-              locale="zh-CN"
-              value={month}
-              onIonChange={(e) => {
-                const v = e.detail.value
-                if (typeof v === 'string' && v) {
-                  setMonth(v.slice(0, 7))
-                  setMonthOpen(false)
-                }
-              }}
-            />
-          </div>
-        </IonContent>
-      </IonModal>
+      <MonthPickerSheet
+        isOpen={monthOpen}
+        month={month}
+        onClose={() => setMonthOpen(false)}
+        onSelect={setMonth}
+      />
 
-      {/* 当月收支对比 */}
-      <div className="grid grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>支出</CardDescription>
+      {/* 当月收支对比：
+          手机上三列并排时空间极窄，通过「压缩间距 + 缩小内边距 + 长数字换行」
+          让金额尽量完整展示，而不是被 truncate 截断 */}
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-4">
+        <Card className="gap-1.5 py-3 [--card-spacing:--spacing(2)] sm:gap-4 sm:py-4 sm:[--card-spacing:--spacing(4)]">
+          <CardHeader className="pb-0.5">
+            <CardDescription className="text-xs leading-tight sm:text-sm">支出</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="truncate text-lg font-bold text-green-600 sm:text-xl">
+            <p className="text-[clamp(0.8125rem,3.8vw,1.25rem)] leading-tight font-bold break-all tabular-nums text-green-600">
               -{isLoading ? '…' : formatMoney(monthExpense)}
             </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>收入</CardDescription>
+        <Card className="gap-1.5 py-3 [--card-spacing:--spacing(2)] sm:gap-4 sm:py-4 sm:[--card-spacing:--spacing(4)]">
+          <CardHeader className="pb-0.5">
+            <CardDescription className="text-xs leading-tight sm:text-sm">收入</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="truncate text-lg font-bold text-red-600 sm:text-xl">
+            <p className="text-[clamp(0.8125rem,3.8vw,1.25rem)] leading-tight font-bold break-all tabular-nums text-red-600">
               +{isLoading ? '…' : formatMoney(monthIncome)}
             </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>结余</CardDescription>
+        <Card className="gap-1.5 py-3 [--card-spacing:--spacing(2)] sm:gap-4 sm:py-4 sm:[--card-spacing:--spacing(4)]">
+          <CardHeader className="pb-0.5">
+            <CardDescription className="text-xs leading-tight sm:text-sm">结余</CardDescription>
           </CardHeader>
           <CardContent>
             <p
               className={cn(
-                'truncate text-lg font-bold sm:text-xl',
+                'text-[clamp(0.8125rem,3.8vw,1.25rem)] leading-tight font-bold break-all tabular-nums',
                 monthIncome - monthExpense < 0 && 'text-destructive',
               )}
             >

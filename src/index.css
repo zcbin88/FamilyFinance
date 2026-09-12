@@ -314,6 +314,30 @@ ion-header.header-ios {
 ion-toolbar {
   --min-height: 44px;
   --border-width: 0;
+  /* 顶部栏统一使用主题色（品牌金）：
+     标题取 --color ← --ion-toolbar-color，无 color 属性的按钮（返回箭头、关闭、本月）
+     也会走 .in-toolbar 分支取同一个变量，因此标题与箭头颜色天然一致。
+     注意 ion-toolbar 的 shadow :host 里写死了 --color，外部只能靠 Ionic 预留的
+     --ion-toolbar-color 覆盖。 */
+  --ion-toolbar-color: var(--primary);
+  /* 带 color="primary" 的按钮（右侧账本菜单）取 --ion-color-base ← --ion-color-primary，
+     这里也指到主题 token，避免直接用 Ionic 里写死的 #b88513 */
+  --ion-color-primary: var(--primary);
+}
+
+/* 顶部栏标题居中：
+   MD(Material) 模式标题默认左对齐，这里统一居中。
+   用绝对定位让标题相对整条 toolbar 居中，而不是在左右按钮之间的剩余空间里居中，
+   否则左右按钮宽度不等时标题会肉眼可见地偏。
+   标题区域左右各留 56px 避开按钮（标题本身 pointer-events:none，
+   不拦截点击；且右侧按钮绘制层级更高，账本切换仍可点）。 */
+ion-toolbar > ion-title {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  padding-inline: 56px;
+  text-align: center;
+  pointer-events: none;
 }
 
 /* ===== 胶囊按钮（新建 / 添加）=====
@@ -349,8 +373,58 @@ ion-modal ion-toolbar {
   --min-height: 52px;
 }
 
+/* 顶部栏右侧的账本切换菜单（IonActionSheet）文字同样取主题色 */
+ion-action-sheet.ledger-sheet {
+  --button-color: var(--primary);
+}
+
+/* 月份选择：半屏底部抽屉（sheet modal） */
+ion-modal.month-sheet {
+  --border-radius: 20px 20px 0 0;
+  --box-shadow: 0 -10px 30px rgb(0 0 0 / 0.16);
+  --backdrop-opacity: 0.32;
+  --width: 100%;
+  --max-width: 100%;
+}
+
+/* 抽屉里不要 iOS 安全区以外多余的留白 */
+ion-modal.month-sheet::part(content) {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ===== 下拉刷新（ion-refresher）=====
+   ion-refresher 是非 Shadow 组件，它的布局样式由 Ionic 运行时注入到 <head>：
+   未分层、且注入时机晚于本文件，所以这里不改布局，只做主题化。
+   - 颜色：改写作用域内的 --ion-text-color（Ionic 用它给图标/文字/转圈上色）。
+     变量在元素上重新声明后按继承生效，不受样式注入顺序影响。
+   - 字号：Ionic 默认 30px 图标 + 16px 文字，这里用更高优先级选择器覆盖。 */
+ion-refresher[slot='fixed'] {
+  --ion-text-color: var(--primary);
+  --ion-color-primary: var(--primary);
+}
+
+ion-refresher[slot='fixed'] .refresher-pulling-icon,
+ion-refresher[slot='fixed'] .refresher-refreshing-icon {
+  font-size: 26px;
+}
+
+/* ion-spinner 是 Shadow 组件，内部用 color: var(--color) 取色（--ion-text-color 传不进去），
+   要单独把变量设到它身上 */
+ion-refresher[slot='fixed'] .refresher-refreshing ion-spinner {
+  --color: var(--primary);
+}
+
+ion-refresher[slot='fixed'] .refresher-pulling-text,
+ion-refresher[slot='fixed'] .refresher-refreshing-text {
+  color: var(--muted-foreground);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
 /* 月份选择器：铺满宽度 */
 ion-datetime.month-datetime {
   width: 100%;
   max-width: 100%;
+  --background: transparent;
 }
