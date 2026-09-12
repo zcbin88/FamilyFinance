@@ -231,42 +231,43 @@ export default function TransactionsPage() {
                       <IonItem button detail={false} onClick={() => setEditing(tx)}>
                         <span
                           slot="start"
-                          className="flex size-9 items-center justify-center rounded-full"
+                          className="flex size-10 items-center justify-center rounded-full"
                           style={{ backgroundColor: `${cat?.color ?? '#6b7280'}1f` }}
                         >
                           <CategoryIcon
                             icon={cat?.icon ?? 'ellipsis'}
                             color={cat?.color}
-                            className="size-4"
+                            className="size-5"
                           />
                         </span>
 
-                        <IonLabel>
-                          <h2 className="text-sm font-medium">
-                            {cat?.name ?? '未知分类'}
+                        <IonLabel className="min-w-0">
+                          <div className="flex items-baseline gap-3">
+                            <h2 className="m-0 min-w-0 flex-1 truncate text-sm font-medium">
+                              {cat?.name ?? '未知分类'}
+                            </h2>
+                            <span
+                              className={cn(
+                                'shrink-0 text-sm font-semibold tabular-nums',
+                                tx.type === 'expense' ? 'text-green-600' : 'text-red-600',
+                              )}
+                            >
+                              {tx.type === 'expense' ? '-' : '+'}
+                              {formatMoney(tx.amount)}
+                            </span>
+                          </div>
+                          <p className="m-0 mt-0.5 truncate text-xs text-muted-foreground">
                             {tx.note && (
-                              <span className="ml-2 font-normal text-muted-foreground">
+                              <>
                                 {tx.note}
-                              </span>
+                                <span className="mx-1.5">·</span>
+                              </>
                             )}
-                          </h2>
-                          <p className="text-xs">
                             {tx.pay_method ?? '现金'}
-                            <span className="mx-1">·</span>
+                            <span className="mx-1.5">·</span>
                             {recorder?.name ?? '未知'}
                           </p>
                         </IonLabel>
-
-                        <IonNote
-                          slot="end"
-                          className={cn(
-                            'text-sm font-semibold',
-                            tx.type === 'expense' ? 'text-green-600' : 'text-red-600',
-                          )}
-                        >
-                          {tx.type === 'expense' ? '-' : '+'}
-                          {formatMoney(tx.amount)}
-                        </IonNote>
                       </IonItem>
 
                       {/* 左滑操作：编辑 / 删除 */}

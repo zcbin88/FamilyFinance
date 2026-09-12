@@ -93,7 +93,7 @@ export default function AppLayout() {
           type="button"
           onClick={() => navigate('/transactions/new')}
           aria-label="记一笔"
-          className="absolute left-1/2 top-0 z-20 flex size-14 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-0.5 rounded-full border-4 border-background bg-primary text-primary-foreground shadow-lg transition-transform active:scale-95"
+          className="absolute left-1/2 top-0 z-20 flex size-14 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-0.5 rounded-full bg-primary text-primary-foreground shadow-lg transition-transform active:scale-95"
         >
           <IonIcon icon={add} className="text-2xl" />
           <span className="text-[10px] font-medium leading-none">记账</span>
