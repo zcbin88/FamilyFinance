@@ -201,9 +201,11 @@
   background: var(--card);
   transition: border-color 0.15s ease;
   --highlight-height: 0px;
-  --highlight-color-focused: transparent;
-  --highlight-color-valid: transparent;
-  --highlight-color-invalid: transparent;
+  /* ion-input/ion-textarea 的 caret-color 取自 --highlight-color，
+     不能设成 transparent，否则光标会一起消失 */
+  --highlight-color-focused: var(--primary);
+  --highlight-color-valid: var(--foreground);
+  --highlight-color-invalid: var(--destructive);
   --border-width: 0;
   --border-style: none;
   --border-color: transparent;
@@ -300,4 +302,51 @@
 }
 .stroke-border\/50 {
   stroke: color-mix(in oklab, oklch(0.912 0.009 80) 50%, transparent);
+}
+
+/* ===== 顶部栏：扁平化 + 降低高度 =====
+   Android(Material) 默认 56px 且带滚动阴影 */
+ion-header,
+ion-toolbar {
+  --box-shadow: none;
+  --border-width: 0;
+}
+ion-header {
+  box-shadow: none;
+}
+ion-toolbar {
+  --min-height: 44px;
+}
+
+/* ===== 胶囊按钮（新建 / 添加）=====
+   IonButton 的背景/文字由 --background/--color 控制，
+   用 lab() 字面量写透明度，兼容 iOS 15.x */
+:root {
+  --primary-soft: lab(59.4052% 13.9334 60.832 / 0.1);
+  --primary-soft-hover: lab(59.4052% 13.9334 60.832 / 0.18);
+  --primary-soft-border: lab(59.4052% 13.9334 60.832 / 0.2);
+}
+
+.pill-btn {
+  --background: var(--primary-soft);
+  --background-hover: var(--primary-soft-hover);
+  --background-activated: var(--primary-soft-hover);
+  --color: var(--primary);
+  --color-hover: var(--primary);
+  --color-activated: var(--primary);
+  --border-radius: 9999px;
+  --border-width: 1px;
+  --border-style: solid;
+  --border-color: var(--primary-soft-border);
+  --box-shadow: none;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+/* 编辑/新建弹窗里的工具栏也保持紧凑 */
+ion-modal ion-toolbar {
+  --min-height: 52px;
 }

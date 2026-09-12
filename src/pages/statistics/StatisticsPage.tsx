@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { IonButton, IonDatetime, IonIcon, IonModal } from '@ionic/react'
+import { IonButton, IonContent, IonDatetime, IonIcon, IonModal } from '@ionic/react'
 import { calendarClearOutline, chevronBack, chevronForward } from 'ionicons/icons'
 import {
   Card,
@@ -64,19 +64,28 @@ export default function StatisticsPage() {
         </IonButton>
       </div>
 
-      <IonModal isOpen={monthOpen} onDidDismiss={() => setMonthOpen(false)}>
-        <IonDatetime
-          presentation="month-year"
-          locale="zh-CN"
-          value={month}
-          onIonChange={(e) => {
-            const v = e.detail.value
-            if (typeof v === 'string' && v) {
-              setMonth(v.slice(0, 7))
-              setMonthOpen(false)
-            }
-          }}
-        />
+      <IonModal
+        isOpen={monthOpen}
+        onDidDismiss={() => setMonthOpen(false)}
+        initialBreakpoint={0.55}
+        breakpoints={[0, 0.55, 1]}
+      >
+        <IonContent>
+          <div className="flex h-full items-center justify-center">
+            <IonDatetime
+              presentation="month-year"
+              locale="zh-CN"
+              value={month}
+              onIonChange={(e) => {
+                const v = e.detail.value
+                if (typeof v === 'string' && v) {
+                  setMonth(v.slice(0, 7))
+                  setMonthOpen(false)
+                }
+              }}
+            />
+          </div>
+        </IonContent>
       </IonModal>
 
       {/* 当月收支对比 */}

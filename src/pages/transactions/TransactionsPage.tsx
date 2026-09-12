@@ -136,19 +136,28 @@ export default function TransactionsPage() {
         </IonButton>
       </div>
 
-      <IonModal isOpen={monthOpen} onDidDismiss={() => setMonthOpen(false)}>
-        <IonDatetime
-          presentation="month-year"
-          locale="zh-CN"
-          value={month}
-          onIonChange={(e) => {
-            const v = e.detail.value
-            if (typeof v === 'string' && v) {
-              setMonth(v.slice(0, 7))
-              setMonthOpen(false)
-            }
-          }}
-        />
+      <IonModal
+        isOpen={monthOpen}
+        onDidDismiss={() => setMonthOpen(false)}
+        initialBreakpoint={0.55}
+        breakpoints={[0, 0.55, 1]}
+      >
+        <IonContent>
+          <div className="flex h-full items-center justify-center">
+            <IonDatetime
+              presentation="month-year"
+              locale="zh-CN"
+              value={month}
+              onIonChange={(e) => {
+                const v = e.detail.value
+                if (typeof v === 'string' && v) {
+                  setMonth(v.slice(0, 7))
+                  setMonthOpen(false)
+                }
+              }}
+            />
+          </div>
+        </IonContent>
       </IonModal>
 
       {/* 月份汇总 */}

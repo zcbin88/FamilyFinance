@@ -116,8 +116,7 @@ export default function CategoryManager() {
         <CardAction>
           <IonButton
             size="small"
-            fill="outline"
-            className="h-8 rounded-full"
+            className="pill-btn"
             onClick={() => setCreateOpen(true)}
           >
             <IonIcon slot="start" icon={addOutline} />
