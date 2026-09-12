@@ -60,27 +60,18 @@ export default function AppLayout() {
           所以凸起按钮必须放在 TabBar 外层的相对容器里做绝对定位 */}
       <div className="relative">
         <IonTabBar>
-          {TABS.slice(0, 2).map((tab) => (
+          {TABS.map((tab, index) => (
             <IonTabButton
               key={tab.path}
               tab={tab.path}
               selected={isActive(pathname, tab.path, tab.end)}
               onClick={() => navigate(tab.path)}
-            >
-              <IonIcon icon={tab.icon} />
-              <IonLabel className="text-xs">{tab.label}</IonLabel>
-            </IonTabButton>
-          ))}
-
-          {/* 给中间凸起按钮留位（宽度大于按钮，避免与左右 Tab 误触） */}
-          <div className="w-24 shrink-0" aria-hidden="true" />
-
-          {TABS.slice(2).map((tab) => (
-            <IonTabButton
-              key={tab.path}
-              tab={tab.path}
-              selected={isActive(pathname, tab.path, tab.end)}
-              onClick={() => navigate(tab.path)}
+              // IonTabBar 只接受 ion-tab-button，普通 div 占位会被丢弃，
+              // 因此用相邻两个 Tab 的 margin 撑出中间凸起按钮的空档
+              style={{
+                ...(index === 1 ? { marginInlineEnd: '4rem' } : {}),
+                ...(index === 2 ? { marginInlineStart: '4rem' } : {}),
+              }}
             >
               <IonIcon icon={tab.icon} />
               <IonLabel className="text-xs">{tab.label}</IonLabel>
