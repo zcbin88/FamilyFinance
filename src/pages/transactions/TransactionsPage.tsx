@@ -1,34 +1,35 @@
-import { useState } from 'react'
-import { Link } from 'react-router'
+import { Fragment, useState } from 'react'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
-import { CalendarIcon, Pencil, Plus, Trash2 } from 'lucide-react'
 import {
+  IonAlert,
   IonButton,
   IonButtons,
   IonContent,
+  IonDatetime,
   IonHeader,
+  IonIcon,
+  IonItem,
+  IonItemOption,
+  IonItemOptions,
+  IonItemSliding,
+  IonLabel,
+  IonList,
+  IonListHeader,
   IonModal,
+  IonNote,
+  IonSkeletonText,
   IonTitle,
   IonToolbar,
 } from '@ionic/react'
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Calendar } from '@/components/ui/calendar'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+  calendarClearOutline,
+  chevronBack,
+  chevronForward,
+  pencilOutline,
+  trashOutline,
+} from 'ionicons/icons'
 import TransactionForm, { type TransactionFormValues } from '@/components/transaction/TransactionForm'
 import { useLedgerContext } from '@/context/LedgerProvider'
 import { useCurrentFamily } from '@/hooks/useFamily'
@@ -59,7 +60,7 @@ export default function TransactionsPage() {
   const { currentLedger } = useLedgerContext()
 
   const [month, setMonth] = useState(() => format(new Date(), 'yyyy-MM'))
-  const [monthPickerOpen, setMonthPickerOpen] = useState(false)
+  const [monthOpen, setMonthOpen] = useState(false)
   const [editing, setEditing] = useState<Transaction | null>(null)
   const [deleting, setDeleting] = useState<Transaction | null>(null)
 
@@ -112,66 +113,60 @@ export default function TransactionsPage() {
   return (
     <div className="space-y-4">
       {/* 头部 */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">明细</h1>
-          <p className="text-sm text-muted-foreground">
-            账本：{currentLedger?.name ?? '…'}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button asChild>
-            <Link to="/transactions/new">
-              <Plus className="size-4" />
-              记一笔
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => changeMonth(-1)}>
-            上月
-          </Button>
-          <Popover open={monthPickerOpen} onOpenChange={setMonthPickerOpen}>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="min-w-24">
-                <CalendarIcon className="size-4" />
-                {month}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <Calendar
-                mode="single"
-                selected={new Date(`${month}-01T00:00:00`)}
-                onSelect={(d) => {
-                  if (d) {
-                    setMonth(format(d, 'yyyy-MM'))
-                    setMonthPickerOpen(false)
-                  }
-                }}
-                locale={zhCN}
-              />
-            </PopoverContent>
-          </Popover>
-          <Button variant="outline" size="sm" onClick={() => changeMonth(1)}>
-            下月
-          </Button>
-        </div>
+      <div>
+        <h1 className="text-2xl font-semibold">明细</h1>
+        <p className="text-sm text-muted-foreground">
+          账本：{currentLedger?.name ?? '…'}
+        </p>
       </div>
+
+      {/* 月份切换：IonDatetime month-year 原生月份选择 */}
+      <div className="flex items-center justify-between rounded-xl border bg-card px-1 py-1">
+        <IonButton fill="clear" size="small" onClick={() => changeMonth(-1)} aria-label="上月">
+          <IonIcon slot="icon-only" icon={chevronBack} />
+        </IonButton>
+
+        <IonButton fill="clear" size="small" onClick={() => setMonthOpen(true)}>
+          <IonIcon slot="start" icon={calendarClearOutline} />
+          {month}
+        </IonButton>
+
+        <IonButton fill="clear" size="small" onClick={() => changeMonth(1)} aria-label="下月">
+          <IonIcon slot="icon-only" icon={chevronForward} />
+        </IonButton>
+      </div>
+
+      <IonModal isOpen={monthOpen} onDidDismiss={() => setMonthOpen(false)}>
+        <IonDatetime
+          presentation="month-year"
+          locale="zh-CN"
+          value={month}
+          onIonChange={(e) => {
+            const v = e.detail.value
+            if (typeof v === 'string' && v) {
+              setMonth(v.slice(0, 7))
+              setMonthOpen(false)
+            }
+          }}
+        />
+      </IonModal>
 
       {/* 月份汇总 */}
       {!isLoading && result && (
         <div className="grid grid-cols-3 gap-3">
-          <div className="rounded-xl border p-3">
+          <div className="rounded-xl border bg-card p-3">
             <p className="text-xs text-muted-foreground">支出</p>
             <p className="truncate text-base font-semibold text-green-600 sm:text-lg">
               -{formatMoney(monthExpense)}
             </p>
           </div>
-          <div className="rounded-xl border p-3">
+          <div className="rounded-xl border bg-card p-3">
             <p className="text-xs text-muted-foreground">收入</p>
             <p className="truncate text-base font-semibold text-red-600 sm:text-lg">
               +{formatMoney(monthIncome)}
             </p>
           </div>
-          <div className="rounded-xl border p-3">
+          <div className="rounded-xl border bg-card p-3">
             <p className="text-xs text-muted-foreground">结余</p>
             <p className="truncate text-base font-semibold sm:text-lg">
               {formatMoney(monthIncome - monthExpense)}
@@ -182,88 +177,88 @@ export default function TransactionsPage() {
 
       {/* 列表 */}
       {isLoading ? (
-        <div className="space-y-3">
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
-        </div>
+        <IonList>
+          {[0, 1, 2, 3].map((i) => (
+            <IonItem key={i}>
+              <IonSkeletonText
+                animated
+                slot="start"
+                style={{ width: 36, height: 36, borderRadius: '50%' }}
+              />
+              <IonLabel>
+                <IonSkeletonText animated style={{ width: '60%' }} />
+                <IonSkeletonText animated style={{ width: '40%' }} />
+              </IonLabel>
+            </IonItem>
+          ))}
+        </IonList>
       ) : groups.length === 0 ? (
         <div className="py-16 text-center">
           <p className="text-4xl">📒</p>
-          <p className="mt-3 text-muted-foreground">
-            {month} 还没有账单
-          </p>
+          <p className="mt-3 text-muted-foreground">{month} 还没有账单</p>
         </div>
       ) : (
-        groups.map(([date, txs]) => {
-          const dayExpense = txs
-            .filter((t) => t.type === 'expense')
-            .reduce((s, t) => s + t.amount, 0)
-          const dayIncome = txs
-            .filter((t) => t.type === 'income')
-            .reduce((s, t) => s + t.amount, 0)
+        <IonList>
+          {groups.map(([date, txs]) => {
+            const dayExpense = txs
+              .filter((t) => t.type === 'expense')
+              .reduce((s, t) => s + t.amount, 0)
+            const dayIncome = txs
+              .filter((t) => t.type === 'income')
+              .reduce((s, t) => s + t.amount, 0)
 
-          return (
-            <div key={date}>
-              <div className="mb-1 flex items-center justify-between px-1">
-                <p className="text-sm font-medium text-muted-foreground">
-                  {format(new Date(`${date}T00:00:00`), 'M月d日 EEEE', { locale: zhCN })}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {dayIncome > 0 && <span className="text-red-600">收 {formatMoney(dayIncome)} </span>}
-                  {dayExpense > 0 && <span className="text-green-600">支 {formatMoney(dayExpense)}</span>}
-                </p>
-              </div>
-              <div className="overflow-hidden rounded-xl border bg-card">
+            return (
+              <Fragment key={date}>
+                <IonListHeader>
+                  <IonLabel className="text-sm">
+                    {format(new Date(`${date}T00:00:00`), 'M月d日 EEEE', { locale: zhCN })}
+                  </IonLabel>
+                  <IonNote slot="end" className="text-xs">
+                    {dayIncome > 0 && (
+                      <span className="text-red-600">收 {formatMoney(dayIncome)} </span>
+                    )}
+                    {dayExpense > 0 && (
+                      <span className="text-green-600">支 {formatMoney(dayExpense)}</span>
+                    )}
+                  </IonNote>
+                </IonListHeader>
+
                 {txs.map((tx) => {
                   const cat = categoryMap.get(tx.category_id)
                   const recorder = profileMap?.get(tx.user_id)
                   return (
-                    <div
-                      key={tx.id}
-                      className="flex items-center gap-3 border-b px-3 py-2.5 last:border-b-0"
-                    >
-                      <span
-                        className="flex size-9 shrink-0 items-center justify-center rounded-full"
-                        style={{ backgroundColor: `${cat?.color ?? '#6b7280'}1f` }}
-                      >
-                        <CategoryIcon
-                          icon={cat?.icon ?? 'ellipsis'}
-                          color={cat?.color}
-                          className="size-4"
-                        />
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">
-                          {cat?.name ?? '未知分类'}
-                          {tx.note && (
-                            <span className="ml-2 font-normal text-muted-foreground">
-                              {tx.note}
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {tx.pay_method ?? '现金'}
-                          <span className="mx-1">·</span>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="inline-flex items-center gap-1">
-                                <Avatar className="size-3.5">
-                                  <AvatarFallback className="text-[8px]">
-                                    {(recorder?.name ?? '?').slice(0, 1)}
-                                  </AvatarFallback>
-                                </Avatar>
-                                {recorder?.name ?? '未知'}
+                    <IonItemSliding key={tx.id}>
+                      <IonItem button detail={false} onClick={() => setEditing(tx)}>
+                        <span
+                          slot="start"
+                          className="flex size-9 items-center justify-center rounded-full"
+                          style={{ backgroundColor: `${cat?.color ?? '#6b7280'}1f` }}
+                        >
+                          <CategoryIcon
+                            icon={cat?.icon ?? 'ellipsis'}
+                            color={cat?.color}
+                            className="size-4"
+                          />
+                        </span>
+
+                        <IonLabel>
+                          <h2 className="text-sm font-medium">
+                            {cat?.name ?? '未知分类'}
+                            {tx.note && (
+                              <span className="ml-2 font-normal text-muted-foreground">
+                                {tx.note}
                               </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              {recorder?.name ?? '未知'}记的账
-                            </TooltipContent>
-                          </Tooltip>
-                        </p>
-                      </div>
-                      <div className="flex shrink-0 items-center gap-1">
-                        <p
+                            )}
+                          </h2>
+                          <p className="text-xs">
+                            {tx.pay_method ?? '现金'}
+                            <span className="mx-1">·</span>
+                            {recorder?.name ?? '未知'}
+                          </p>
+                        </IonLabel>
+
+                        <IonNote
+                          slot="end"
                           className={cn(
                             'text-sm font-semibold',
                             tx.type === 'expense' ? 'text-green-600' : 'text-red-600',
@@ -271,29 +266,28 @@ export default function TransactionsPage() {
                         >
                           {tx.type === 'expense' ? '-' : '+'}
                           {formatMoney(tx.amount)}
-                        </p>
-                        <Button variant="ghost" size="icon" className="size-8" onClick={() => setEditing(tx)}>
-                          <Pencil className="size-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-8 text-destructive"
-                          onClick={() => setDeleting(tx)}
-                        >
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      </div>
-                    </div>
+                        </IonNote>
+                      </IonItem>
+
+                      {/* 左滑操作：编辑 / 删除 */}
+                      <IonItemOptions side="end">
+                        <IonItemOption color="primary" onClick={() => setEditing(tx)}>
+                          <IonIcon slot="icon-only" icon={pencilOutline} />
+                        </IonItemOption>
+                        <IonItemOption color="danger" onClick={() => setDeleting(tx)}>
+                          <IonIcon slot="icon-only" icon={trashOutline} />
+                        </IonItemOption>
+                      </IonItemOptions>
+                    </IonItemSliding>
                   )
                 })}
-              </div>
-            </div>
-          )
-        })
+              </Fragment>
+            )
+          })}
+        </IonList>
       )}
 
-      {/* 编辑：Ionic 全屏 Modal（移动端原生页面级编辑体验） */}
+      {/* 编辑：Ionic 全屏 Modal */}
       <IonModal isOpen={!!editing} onDidDismiss={() => setEditing(null)}>
         <IonHeader>
           <IonToolbar>
@@ -319,29 +313,21 @@ export default function TransactionsPage() {
         </IonContent>
       </IonModal>
 
-      {/* 删除确认 */}
-      <AlertDialog open={!!deleting} onOpenChange={(open) => !open && setDeleting(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>删除这笔账单？</AlertDialogTitle>
-            <AlertDialogDescription>
-              {deleting
-                ? `${categoryMap.get(deleting.category_id)?.name ?? '未知分类'} · ${formatMoney(deleting.amount)} 元`
-                : ''}
-              ，删除后不可恢复。
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              确认删除
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* 删除确认：IonAlert 原生弹窗 */}
+      <IonAlert
+        isOpen={!!deleting}
+        header="删除这笔账单？"
+        message={
+          deleting
+            ? `${categoryMap.get(deleting.category_id)?.name ?? '未知分类'} · ${formatMoney(deleting.amount)} 元，删除后不可恢复。`
+            : ''
+        }
+        buttons={[
+          { text: '取消', role: 'cancel' },
+          { text: '确认删除', role: 'destructive', handler: handleDelete },
+        ]}
+        onDidDismiss={() => setDeleting(null)}
+      />
     </div>
   )
 }
