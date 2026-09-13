@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/card'
 import MonthPickerSheet from '@/components/common/MonthPickerSheet'
 import CategoryPie from '@/components/stats/CategoryPie'
+import CategoryStats from '@/components/stats/CategoryStats'
 import MemberStats from '@/components/stats/MemberStats'
 import TrendChart from '@/components/stats/TrendChart'
 import { useLedgerContext } from '@/context/LedgerProvider'
@@ -143,6 +144,17 @@ export default function StatisticsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* 当月分类统计 */}
+      <Card>
+        <CardHeader>
+          <CardTitle>分类统计</CardTitle>
+          <CardDescription>{month} 各分类的支出 / 收入</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <CategoryStats familyId={family?.id} ledgerId={currentLedger?.id} month={month} />
+        </CardContent>
+      </Card>
     </div>
   )
 }
