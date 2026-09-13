@@ -23,6 +23,9 @@ export type Family = {
   created_at: string
 }
 
+/** 只含展示所需字段的用户资料（列表展示记账人用） */
+export type ProfileLite = Pick<Profile, 'id' | 'name' | 'avatar_url'>
+
 export type FamilyRole = 'owner' | 'member'
 
 export type FamilyMember = {

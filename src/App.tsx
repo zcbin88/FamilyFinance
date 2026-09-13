@@ -13,6 +13,7 @@ import SettingsPage from '@/pages/settings/SettingsPage'
 import ProfilePage from '@/pages/settings/ProfilePage'
 import StatisticsPage from '@/pages/statistics/StatisticsPage'
 import TransactionsPage from '@/pages/transactions/TransactionsPage'
+import TransactionSearchPage from '@/pages/transactions/TransactionSearchPage'
 import TransactionFormPage from '@/pages/transactions/TransactionFormPage'
 
 function FullPageLoading() {
@@ -78,6 +79,7 @@ export default function App() {
           <Route element={<FamilyGate />}>
             <Route index element={<DashboardPage />} />
             <Route path="transactions" element={<TransactionsPage />} />
+            <Route path="transactions/search" element={<TransactionSearchPage />} />
             <Route path="statistics" element={<StatisticsPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>

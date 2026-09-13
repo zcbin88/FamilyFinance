@@ -1,17 +1,35 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { addMonths, format, startOfMonth } from 'date-fns'
 import { supabase } from '@/lib/supabase'
-import type { Profile, Transaction } from '@/types/database'
+import type { ProfileLite, Transaction } from '@/types/database'
 
 export const transactionKeys = {
   all: ['transactions'] as const,
   list: (ledgerId: string, month: string) =>
     [...transactionKeys.all, 'list', ledgerId, month] as const,
+  search: (
+    ledgerId: string,
+    keyword: string,
+    type: TransactionSearchType,
+    categoryIds: string[],
+  ) =>
+    [...transactionKeys.all, 'search', ledgerId, keyword, type, categoryIds.join(',')] as const,
 }
 
 export interface TransactionQueryResult {
   transactions: Transaction[]
-  profileMap: Map<string, Pick<Profile, 'id' | 'name' | 'avatar_url'>>
+  profileMap: Map<string, ProfileLite>
+}
+
+/** 查询记账人资料（列表展示用） */
+async function fetchProfileMap(userIds: string[]): Promise<Map<string, ProfileLite>> {
+  if (userIds.length === 0) return new Map()
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, name, avatar_url')
+    .in('id', userIds)
+  if (error) throw error
+  return new Map(data.map((p) => [p.id, p]))
 }
 
 /** 某账本某月的交易（occurred_at 在 [月初, 下月初)），附带记账人资料 */
@@ -35,20 +53,98 @@ export function useTransactions(ledgerId?: string | null, month?: string) {
 
       const transactions = data as Transaction[]
 
-      // 查询涉及记账人的资料
-      const userIds = [...new Set(transactions.map((t) => t.user_id))]
-      let profileMap = new Map<string, Pick<Profile, 'id' | 'name' | 'avatar_url'>>()
-      if (userIds.length > 0) {
-        const { data: profiles, error: pErr } = await supabase
-          .from('profiles')
-          .select('id, name, avatar_url')
-          .in('id', userIds)
-        if (pErr) throw pErr
-        profileMap = new Map(profiles.map((p) => [p.id, p]))
-      }
+      const profileMap = await fetchProfileMap([...new Set(transactions.map((t) => t.user_id))])
 
       return { transactions, profileMap }
     },
+  })
+}
+
+export type TransactionSearchType = 'all' | 'expense' | 'income'
+
+export interface TransactionSearchParams {
+  ledgerId?: string | null
+  /** 已防抖的关键词，同时匹配备注与分类名 */
+  keyword?: string
+  type?: TransactionSearchType
+  /** 分类多选筛选 */
+  categoryIds?: string[]
+  /** 分类名命中关键词的分类 id（把命中分类的交易也一并捞出） */
+  keywordCategoryIds?: string[]
+}
+
+const SEARCH_PAGE_SIZE = 30
+
+export interface TransactionSearchPage {
+  transactions: Transaction[]
+  profileMap: Map<string, ProfileLite>
+  /** 命中的总条数（不分页） */
+  total: number
+}
+
+/**
+ * PostgREST 逻辑表达式（or=）里的值：含 `,` `.` `:` `()` `"` 等保留字符时
+ * 必须用双引号包起来，否则会破坏过滤器语法。
+ */
+function quoteOrValue(value: string) {
+  return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
+}
+
+/**
+ * 搜索交易（P1）：当前账本全历史，服务端分页。
+ * - 仅在有关键词或筛选条件时才发起请求
+ * - 关键词匹配「备注」或「分类名」；分类名由调用方在客户端解析成 id 传入
+ */
+export function useSearchTransactions({
+  ledgerId,
+  keyword = '',
+  type = 'all',
+  categoryIds = [],
+  keywordCategoryIds = [],
+}: TransactionSearchParams) {
+  const trimmed = keyword.trim()
+  const hasCriteria = !!trimmed || type !== 'all' || categoryIds.length > 0
+  const sortedCategoryIds = [...categoryIds].sort()
+
+  return useInfiniteQuery({
+    queryKey: transactionKeys.search(ledgerId ?? 'none', trimmed, type, sortedCategoryIds),
+    enabled: !!ledgerId && hasCriteria,
+    initialPageParam: 0,
+    queryFn: async ({ pageParam }): Promise<TransactionSearchPage> => {
+      let query = supabase
+        .from('transactions')
+        .select('*', { count: 'exact' })
+        .eq('ledger_id', ledgerId!)
+
+      if (type !== 'all') query = query.eq('type', type)
+      if (categoryIds.length > 0) query = query.in('category_id', categoryIds)
+
+      if (trimmed) {
+        const pattern = `%${trimmed}%`
+        if (keywordCategoryIds.length > 0) {
+          // 关键词命中备注，或命中的分类
+          query = query.or(
+            `note.ilike.${quoteOrValue(pattern)},category_id.in.(${keywordCategoryIds.join(',')})`,
+          )
+        } else {
+          query = query.ilike('note', pattern)
+        }
+      }
+
+      const { data, error, count } = await query
+        .order('occurred_at', { ascending: false })
+        .order('created_at', { ascending: false })
+        .range(pageParam, pageParam + SEARCH_PAGE_SIZE - 1)
+      if (error) throw error
+
+      const transactions = data as Transaction[]
+      const profileMap = await fetchProfileMap([...new Set(transactions.map((t) => t.user_id))])
+      return { transactions, profileMap, total: count ?? transactions.length }
+    },
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.transactions.length === SEARCH_PAGE_SIZE
+        ? allPages.length * SEARCH_PAGE_SIZE
+        : undefined,
   })
 }
 

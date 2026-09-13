@@ -34,6 +34,7 @@ const TABS = [
 const PAGE_TITLES: Record<string, string> = {
   '/': '仪表盘',
   '/transactions': '明细',
+  '/transactions/search': '搜索',
   '/statistics': '统计',
   '/settings': '设置',
   '/settings/profile': '账号信息',
@@ -42,6 +43,7 @@ const PAGE_TITLES: Record<string, string> = {
 /** 子页面：顶部栏出现返回按钮，并隐藏账本切换 */
 const SUB_PAGES: Record<string, string> = {
   '/settings/profile': '/settings',
+  '/transactions/search': '/transactions',
 }
 
 function isActive(pathname: string, path: string, end: boolean) {

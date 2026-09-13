@@ -443,6 +443,20 @@ ion-datetime.month-datetime {
   max-width: 100%;
   --background: transparent;
 }
+/* ===== 明细搜索页：ion-searchbar 主题化 =====
+   ion-searchbar 在 Ionic 9 里也是 scoped 组件，host 变量同样可能被运行时样式覆盖，
+   这里统一加 !important（理由同上方 .form-field 注释）。 */
+ion-searchbar.transactions-searchbar {
+  --background: var(--card) !important;
+  --border-radius: var(--radius-lg) !important;
+  --box-shadow: none !important;
+  --color: var(--foreground) !important;
+  --placeholder-color: var(--muted-foreground) !important;
+  --icon-color: var(--muted-foreground) !important;
+  --clear-button-color: var(--muted-foreground) !important;
+  padding: 0 !important;
+}
+
 /* ===== 明细列表左滑操作（ion-item-sliding）=====
    Ionic 的手势监听是 passive 的、不会 preventDefault，
    部分浏览器会把横向拖动判定成自身的手势（横向回退/边缘手势）而吞掉。
