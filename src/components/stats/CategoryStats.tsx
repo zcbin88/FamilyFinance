@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -34,6 +35,7 @@ export default function CategoryStats({
 }) {
   const { data: categories, isLoading: categoriesLoading } = useCategories(familyId)
   const { data: result, isLoading: txLoading } = useTransactions(ledgerId, month)
+  const navigate = useNavigate()
 
   const [type, setType] = useState<TransactionType>('expense')
 
@@ -106,8 +108,21 @@ export default function CategoryStats({
             const count = isExpense ? row.expenseCount : row.incomeCount
             const other = isExpense ? row.income : row.expense
             const share = total > 0 ? Math.round((amount / total) * 100) : 0
+            const detailUrl = `/transactions?month=${month}&category=${row.categoryId}&type=${type}`
             return (
-              <li key={row.categoryId} className="flex items-center gap-3 py-3">
+              <li
+                key={row.categoryId}
+                role="button"
+                tabIndex={0}
+                onClick={() => navigate(detailUrl)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    navigate(detailUrl)
+                  }
+                }}
+                className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-3 -mx-2 transition-colors active:bg-muted/50"
+              >
                 <span
                   className="flex size-9 shrink-0 items-center justify-center rounded-full"
                   style={{ backgroundColor: `${row.color}1f` }}

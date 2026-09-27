@@ -8,12 +8,23 @@ export const transactionKeys = {
   list: (ledgerId: string, month: string) =>
     [...transactionKeys.all, 'list', ledgerId, month] as const,
   search: (
-    ledgerId: string,
+    familyId: string,
+    ledgerIds: string[],
     keyword: string,
     type: TransactionSearchType,
     categoryIds: string[],
+    memberIds: string[],
   ) =>
-    [...transactionKeys.all, 'search', ledgerId, keyword, type, categoryIds.join(',')] as const,
+    [
+      ...transactionKeys.all,
+      'search',
+      familyId,
+      ledgerIds.join(','),
+      keyword,
+      type,
+      categoryIds.join(','),
+      memberIds.join(','),
+    ] as const,
 }
 
 export interface TransactionQueryResult {
@@ -63,7 +74,10 @@ export function useTransactions(ledgerId?: string | null, month?: string) {
 export type TransactionSearchType = 'all' | 'expense' | 'income'
 
 export interface TransactionSearchParams {
-  ledgerId?: string | null
+  /** 当前家庭 id（用于限定搜索范围） */
+  familyId?: string | null
+  /** 账本多选；空数组 = 全部账本 */
+  ledgerIds?: string[]
   /** 已防抖的关键词，同时匹配备注与分类名 */
   keyword?: string
   type?: TransactionSearchType
@@ -71,6 +85,8 @@ export interface TransactionSearchParams {
   categoryIds?: string[]
   /** 分类名命中关键词的分类 id（把命中分类的交易也一并捞出） */
   keywordCategoryIds?: string[]
+  /** 成员多选筛选（记账人 user_id） */
+  memberIds?: string[]
 }
 
 const SEARCH_PAGE_SIZE = 30
@@ -91,31 +107,44 @@ function quoteOrValue(value: string) {
 }
 
 /**
- * 搜索交易（P1）：当前账本全历史，服务端分页。
- * - 仅在有关键词或筛选条件时才发起请求
+ * 搜索交易（P1）：当前家庭全历史，服务端分页。
+ * - 支持多选账本 / 多选成员 / 类型 / 多选分类筛选
+ * - 进入页面即默认按「全部账本」发起查询，无需先输入关键词
  * - 关键词匹配「备注」或「分类名」；分类名由调用方在客户端解析成 id 传入
  */
 export function useSearchTransactions({
-  ledgerId,
+  familyId,
+  ledgerIds = [],
   keyword = '',
   type = 'all',
   categoryIds = [],
+  memberIds = [],
   keywordCategoryIds = [],
 }: TransactionSearchParams) {
   const trimmed = keyword.trim()
-  const hasCriteria = !!trimmed || type !== 'all' || categoryIds.length > 0
+  const sortedLedgerIds = [...ledgerIds].sort()
   const sortedCategoryIds = [...categoryIds].sort()
+  const sortedMemberIds = [...memberIds].sort()
 
   return useInfiniteQuery({
-    queryKey: transactionKeys.search(ledgerId ?? 'none', trimmed, type, sortedCategoryIds),
-    enabled: !!ledgerId && hasCriteria,
+    queryKey: transactionKeys.search(
+      familyId ?? 'none',
+      sortedLedgerIds,
+      trimmed,
+      type,
+      sortedCategoryIds,
+      sortedMemberIds,
+    ),
+    enabled: !!familyId,
     initialPageParam: 0,
     queryFn: async ({ pageParam }): Promise<TransactionSearchPage> => {
       let query = supabase
         .from('transactions')
         .select('*', { count: 'exact' })
-        .eq('ledger_id', ledgerId!)
+        .eq('family_id', familyId!)
 
+      if (ledgerIds.length > 0) query = query.in('ledger_id', ledgerIds)
+      if (memberIds.length > 0) query = query.in('user_id', memberIds)
       if (type !== 'all') query = query.eq('type', type)
       if (categoryIds.length > 0) query = query.in('category_id', categoryIds)
 

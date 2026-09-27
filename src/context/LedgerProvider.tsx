@@ -49,7 +49,7 @@ export function LedgerProvider({ children }: { children: ReactNode }) {
   // 文档标题跟随家庭名称（浏览器标签页），无家庭时回退产品默认名
   const familyName = family?.name
   useEffect(() => {
-    document.title = familyName || '家庭账本'
+    document.title = familyName || '家庭银行'
   }, [familyName])
 
   return (

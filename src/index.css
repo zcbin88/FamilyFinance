@@ -393,8 +393,9 @@ ion-action-sheet.ledger-sheet {
   --button-color: var(--primary);
 }
 
-/* 月份选择：半屏底部抽屉（sheet modal） */
-ion-modal.month-sheet {
+/* 月份选择 / 筛选：半屏底部抽屉（sheet modal） */
+ion-modal.month-sheet,
+ion-modal.filter-sheet {
   --border-radius: 20px 20px 0 0;
   --box-shadow: 0 -10px 30px rgb(0 0 0 / 0.16);
   --backdrop-opacity: 0.32;
@@ -403,7 +404,8 @@ ion-modal.month-sheet {
 }
 
 /* 抽屉里不要 iOS 安全区以外多余的留白 */
-ion-modal.month-sheet::part(content) {
+ion-modal.month-sheet::part(content),
+ion-modal.filter-sheet::part(content) {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 

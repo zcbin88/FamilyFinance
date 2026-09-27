@@ -52,7 +52,7 @@ export default function LoginPage() {
     <div className="flex min-h-dvh items-center justify-center bg-muted/40 px-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">登录家庭账本</CardTitle>
+          <CardTitle className="text-2xl">登录家庭银行</CardTitle>
           <CardDescription>输入邮箱和密码继续</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>

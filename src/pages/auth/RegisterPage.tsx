@@ -70,7 +70,7 @@ export default function RegisterPage() {
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="text-2xl">创建账号</CardTitle>
-          <CardDescription>注册后即可创建家庭账本</CardDescription>
+          <CardDescription>注册后即可创建家庭银行</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">

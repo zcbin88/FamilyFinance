@@ -18,6 +18,7 @@ import {
   barChartOutline,
   gridOutline,
   listOutline,
+  searchOutline,
   settingsOutline,
 } from 'ionicons/icons'
 import LedgerSwitcher from '@/components/layout/LedgerSwitcher'
@@ -59,19 +60,25 @@ export default function AppLayout() {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          {backTo && (
+          {backTo ? (
             <IonButtons slot="start">
               <IonButton onClick={() => navigate(backTo)} aria-label="返回">
                 <IonIcon slot="icon-only" icon={arrowBack} />
               </IonButton>
             </IonButtons>
+          ) : (
+            <IonButtons slot="start">
+              <LedgerSwitcher />
+            </IonButtons>
           )}
           <IonTitle className="text-base font-semibold">
-            {PAGE_TITLES[pathname] ?? '家庭账本'}
+            {PAGE_TITLES[pathname] ?? '家庭银行'}
           </IonTitle>
           {!backTo && (
             <IonButtons slot="end">
-              <LedgerSwitcher />
+              <IonButton onClick={() => navigate('/transactions/search')} aria-label="搜索">
+                <IonIcon slot="icon-only" icon={searchOutline} />
+              </IonButton>
             </IonButtons>
           )}
         </IonToolbar>

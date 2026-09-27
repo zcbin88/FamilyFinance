@@ -47,8 +47,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: '家庭账本',
-        short_name: '家庭账本',
+        name: '家庭银行',
+        short_name: '家庭银行',
         description: '家庭共享记账，多账本管理，收支一目了然',
         lang: 'zh-CN',
         theme_color: '#b88513',

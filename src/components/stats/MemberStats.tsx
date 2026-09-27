@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useNavigate } from 'react-router'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -30,6 +31,7 @@ export default function MemberStats({
 }) {
   const { data: members, isLoading: membersLoading } = useFamilyMembers(familyId)
   const { data: result, isLoading: txLoading } = useTransactions(ledgerId, month)
+  const navigate = useNavigate()
 
   const rows = useMemo<MemberRow[]>(() => {
     if (!members || !result) return []
@@ -88,8 +90,28 @@ export default function MemberStats({
       {rows.map((row) => {
         const hasActivity = row.count > 0
         const share = totalExpense > 0 ? Math.round((row.expense / totalExpense) * 100) : 0
+        const detailUrl = `/transactions?month=${month}&member=${row.userId}`
         return (
-          <li key={row.userId} className="flex items-center gap-3 py-3">
+          <li
+            key={row.userId}
+            role={hasActivity ? 'button' : undefined}
+            tabIndex={hasActivity ? 0 : undefined}
+            onClick={hasActivity ? () => navigate(detailUrl) : undefined}
+            onKeyDown={
+              hasActivity
+                ? (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      navigate(detailUrl)
+                    }
+                  }
+                : undefined
+            }
+            className={cn(
+              'flex items-center gap-3 rounded-lg px-2 py-3 -mx-2 transition-colors',
+              hasActivity && 'cursor-pointer active:bg-muted/50',
+            )}
+          >
             <Avatar className="size-9">
               <AvatarFallback className="text-xs">
                 {row.name.trim().slice(0, 1).toUpperCase() || '?'}
