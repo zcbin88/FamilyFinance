@@ -148,7 +148,7 @@ export default function TransactionForm({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">该类型暂无分类，请先在设置中添加</p>
+          <p className="text-sm text-muted-foreground">该类型暂无分类，请先在「我的」中添加</p>
         )}
       </div>
 

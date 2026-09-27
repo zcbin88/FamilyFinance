@@ -5,10 +5,13 @@ import { format } from 'date-fns'
 import {
   IonButton,
   IonIcon,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
   IonItem,
   IonLabel,
   IonList,
   IonSkeletonText,
+  type InfiniteScrollCustomEvent,
 } from '@ionic/react'
 import {
   calendarClearOutline,
@@ -30,12 +33,14 @@ import { useCurrentFamily, useFamilyMembers } from '@/hooks/useFamily'
 import { useCategories } from '@/hooks/useCategories'
 import {
   useDeleteTransaction,
-  useTransactions,
+  useMonthSummary,
+  useMonthlyTransactions,
   useUpdateTransaction,
+  type MonthFilters,
   type TransactionSearchType,
 } from '@/hooks/useTransactions'
 import { formatMoney } from '@/lib/money'
-import type { Transaction } from '@/types/database'
+import type { ProfileLite, Transaction } from '@/types/database'
 
 /** 筛选栏里一个已选条件的胶囊，可点击删除 */
 function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
@@ -80,9 +85,38 @@ export default function TransactionsPage() {
 
   const { data: categories } = useCategories(family?.id)
   const { data: members } = useFamilyMembers(family?.id)
-  const { data: result, isLoading } = useTransactions(currentLedger?.id, month)
+
+  // 明细列表：服务端分页 + 筛选（无限滚动）
+  const monthFilters: MonthFilters = {
+    type: typeFilter ?? 'all',
+    categoryIds: categoryFilterIds,
+    memberIds: memberFilterIds,
+  }
+  const {
+    data,
+    isLoading,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useMonthlyTransactions(currentLedger?.id, month, monthFilters)
+
+  // 月度汇总：只取 type/amount 两列，轻量，且与筛选条件保持一致
+  const { data: summary, isLoading: summaryLoading } = useMonthSummary(
+    currentLedger?.id,
+    month,
+    monthFilters,
+  )
+
   const updateTx = useUpdateTransaction()
   const deleteTx = useDeleteTransaction()
+
+  const transactions = useMemo(() => data?.pages.flatMap((p) => p.transactions) ?? [], [data])
+  const total = data?.pages[0]?.total ?? 0
+  const profileMap = useMemo(() => {
+    const map = new Map<string, ProfileLite>()
+    data?.pages.forEach((p) => p.profileMap.forEach((v, k) => map.set(k, v)))
+    return map
+  }, [data])
 
   const categoryMap = useMemo(
     () => new Map(categories?.map((c) => [c.id, c])),
@@ -106,26 +140,11 @@ export default function TransactionsPage() {
     })
   }, [categories, typeFilter])
 
-  const filteredTransactions = useMemo(() => {
-    if (!result) return []
-    if (!hasFilter) return result.transactions
-    const catSet = new Set(categoryFilterIds)
-    const memSet = new Set(memberFilterIds)
-    return result.transactions.filter((t) => {
-      if (typeFilter && t.type !== typeFilter) return false
-      if (catSet.size > 0 && !catSet.has(t.category_id)) return false
-      if (memSet.size > 0 && !memSet.has(t.user_id)) return false
-      return true
-    })
-  }, [result, hasFilter, typeFilter, categoryFilterIds, memberFilterIds])
+  const monthExpense = summary?.expense ?? 0
+  const monthIncome = summary?.income ?? 0
 
-  // 月份统计（有筛选时按筛选结果统计，保证与明细一致）
-  const monthExpense = filteredTransactions
-    .filter((t) => t.type === 'expense')
-    .reduce((s, t) => s + t.amount, 0)
-  const monthIncome = filteredTransactions
-    .filter((t) => t.type === 'income')
-    .reduce((s, t) => s + t.amount, 0)
+  // 账本尚未解析完成时先展示骨架，避免闪现「还没有账单」空态
+  const listLoading = isLoading || !currentLedger
 
   function updateFilters(mutate: (p: URLSearchParams) => void) {
     setSearchParams(
@@ -237,6 +256,11 @@ export default function TransactionsPage() {
     }
   }
 
+  async function handleInfinite(ev: InfiniteScrollCustomEvent) {
+    if (hasNextPage && !isFetchingNextPage) await fetchNextPage()
+    await ev.target.complete()
+  }
+
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
@@ -342,32 +366,30 @@ export default function TransactionsPage() {
         onReset={resetFilters}
       />
 
-      {/* 月份汇总 */}
-      {!isLoading && result && (
-        <div className="grid grid-cols-3 gap-3">
-          <div className="rounded-xl border bg-card p-3">
-            <p className="text-xs text-muted-foreground">支出</p>
-            <p className="truncate text-base font-semibold text-green-600 sm:text-lg">
-              -{formatMoney(monthExpense)}
-            </p>
-          </div>
-          <div className="rounded-xl border bg-card p-3">
-            <p className="text-xs text-muted-foreground">收入</p>
-            <p className="truncate text-base font-semibold text-red-600 sm:text-lg">
-              +{formatMoney(monthIncome)}
-            </p>
-          </div>
-          <div className="rounded-xl border bg-card p-3">
-            <p className="text-xs text-muted-foreground">结余</p>
-            <p className="truncate text-base font-semibold sm:text-lg">
-              {formatMoney(monthIncome - monthExpense)}
-            </p>
-          </div>
+      {/* 月份汇总（与筛选一致） */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="rounded-xl border bg-card p-3">
+          <p className="text-xs text-muted-foreground">支出</p>
+          <p className="truncate text-base font-semibold text-green-600 sm:text-lg">
+            -{summaryLoading || !currentLedger ? '…' : formatMoney(monthExpense)}
+          </p>
         </div>
-      )}
+        <div className="rounded-xl border bg-card p-3">
+          <p className="text-xs text-muted-foreground">收入</p>
+          <p className="truncate text-base font-semibold text-red-600 sm:text-lg">
+            +{summaryLoading || !currentLedger ? '…' : formatMoney(monthIncome)}
+          </p>
+        </div>
+        <div className="rounded-xl border bg-card p-3">
+          <p className="text-xs text-muted-foreground">结余</p>
+          <p className="truncate text-base font-semibold sm:text-lg">
+            {summaryLoading || !currentLedger ? '…' : formatMoney(monthIncome - monthExpense)}
+          </p>
+        </div>
+      </div>
 
       {/* 列表 */}
-      {isLoading ? (
+      {listLoading ? (
         <IonList>
           {[0, 1, 2, 3].map((i) => (
             <IonItem key={i}>
@@ -383,7 +405,7 @@ export default function TransactionsPage() {
             </IonItem>
           ))}
         </IonList>
-      ) : !result || filteredTransactions.length === 0 ? (
+      ) : transactions.length === 0 ? (
         <div className="py-16 text-center">
           <p className="text-4xl">{hasFilter ? '🔍' : '📒'}</p>
           <p className="mt-3 text-muted-foreground">
@@ -391,13 +413,21 @@ export default function TransactionsPage() {
           </p>
         </div>
       ) : (
-        <TransactionList
-          transactions={filteredTransactions}
-          categoryMap={categoryMap}
-          profileMap={result.profileMap}
-          onEdit={setEditing}
-          onDelete={setDeleting}
-        />
+        <>
+          {total > 0 && (
+            <p className="px-1 text-xs text-muted-foreground">共 {total} 笔</p>
+          )}
+          <TransactionList
+            transactions={transactions}
+            categoryMap={categoryMap}
+            profileMap={profileMap}
+            onEdit={setEditing}
+            onDelete={setDeleting}
+          />
+          <IonInfiniteScroll disabled={!hasNextPage} onIonInfinite={handleInfinite}>
+            <IonInfiniteScrollContent loadingText="加载中…" />
+          </IonInfiniteScroll>
+        </>
       )}
 
       <TransactionEditModal

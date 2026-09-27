@@ -16,19 +16,19 @@ import {
   add,
   arrowBack,
   barChartOutline,
-  gridOutline,
+  homeOutline,
   listOutline,
+  personOutline,
   searchOutline,
-  settingsOutline,
 } from 'ionicons/icons'
 import LedgerSwitcher from '@/components/layout/LedgerSwitcher'
 import PullToRefresh from '@/components/common/PullToRefresh'
 
 const TABS = [
-  { path: '/', label: '首页', icon: gridOutline, end: true },
+  { path: '/', label: '首页', icon: homeOutline, end: true },
   { path: '/transactions', label: '明细', icon: listOutline, end: false },
   { path: '/statistics', label: '统计', icon: barChartOutline, end: false },
-  { path: '/settings', label: '设置', icon: settingsOutline, end: false },
+  { path: '/settings', label: '我的', icon: personOutline, end: false },
 ]
 
 /** 顶部栏标题：页面标题放这里，省下正文区的垂直空间 */
@@ -37,13 +37,21 @@ const PAGE_TITLES: Record<string, string> = {
   '/transactions': '明细',
   '/transactions/search': '搜索',
   '/statistics': '统计',
-  '/settings': '设置',
+  '/settings': '我的',
   '/settings/profile': '账号信息',
+  '/settings/family': '我的家庭',
+  '/settings/members': '家庭成员',
+  '/settings/ledgers': '账本管理',
+  '/settings/categories': '分类管理',
 }
 
 /** 子页面：顶部栏出现返回按钮，并隐藏账本切换 */
 const SUB_PAGES: Record<string, string> = {
   '/settings/profile': '/settings',
+  '/settings/family': '/settings',
+  '/settings/members': '/settings',
+  '/settings/ledgers': '/settings',
+  '/settings/categories': '/settings',
   '/transactions/search': '/transactions',
 }
 
@@ -85,7 +93,7 @@ export default function AppLayout() {
       </IonHeader>
 
       <IonContent>
-        {/* 下拉刷新：首页 / 明细 / 统计 / 设置 / 账号信息 共用此 IonContent */}
+        {/* 下拉刷新：首页 / 明细 / 统计 / 我的 / 账号信息 共用此 IonContent */}
         <PullToRefresh />
 
         <div className="mx-auto w-full max-w-3xl px-4 pb-28 pt-4">

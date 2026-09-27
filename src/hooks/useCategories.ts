@@ -58,6 +58,29 @@ export function useCreateCategory(familyId?: string | null) {
   })
 }
 
+/** 编辑分类 */
+export function useUpdateCategory() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: { id: string } & CategoryInput) => {
+      const { data, error } = await supabase
+        .from('categories')
+        .update({
+          name: input.name,
+          type: input.type,
+          icon: input.icon,
+          color: input.color,
+        })
+        .eq('id', input.id)
+        .select()
+        .single()
+      if (error) throw error
+      return data
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: categoryKeys.all }),
+  })
+}
+
 /** 删除分类（有交易引用时会被外键 restrict 拒绝） */
 export function useDeleteCategory() {
   const qc = useQueryClient()

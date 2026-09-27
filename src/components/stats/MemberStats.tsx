@@ -17,6 +17,16 @@ interface MemberRow {
   income: number
   /** 笔数 */
   count: number
+  /** 支出贡献排名（仅本月有记账的成员），无记账为 null */
+  rank: number | null
+}
+
+/** 排名颜色：前三名金/银/铜，其余灰色 */
+function rankClass(rank: number) {
+  if (rank === 1) return 'text-amber-500'
+  if (rank === 2) return 'text-slate-400'
+  if (rank === 3) return 'text-amber-700'
+  return 'text-muted-foreground'
 }
 
 /** 成员统计：某账本某月，按记账人（家庭成员）聚合支出 / 收入 / 笔数 */
@@ -47,7 +57,7 @@ export default function MemberStats({
 
     // 当前家庭成员 + 已退出但仍留下记录的旧成员，保证合计与月度汇总一致
     const seen = new Set<string>()
-    const list: MemberRow[] = []
+    const list: Omit<MemberRow, 'rank'>[] = []
     const push = (userId: string, name: string) => {
       if (seen.has(userId)) return
       seen.add(userId)
@@ -59,9 +69,16 @@ export default function MemberStats({
       push(tx.user_id, result.profileMap.get(tx.user_id)?.name ?? '未知成员')
     }
 
-    return list.sort(
+    const sorted = list.sort(
       (x, y) => y.expense - x.expense || y.income - x.income || x.name.localeCompare(y.name),
     )
+
+    // 仅给本月有记账的成员排「贡献榜」名次
+    let activeRank = 0
+    return sorted.map((row) => {
+      if (row.count > 0) activeRank += 1
+      return { ...row, rank: row.count > 0 ? activeRank : null }
+    })
   }, [members, result])
 
   const totalExpense = rows.reduce((s, r) => s + r.expense, 0)
@@ -112,6 +129,16 @@ export default function MemberStats({
               hasActivity && 'cursor-pointer active:bg-muted/50',
             )}
           >
+            {row.rank != null && (
+              <span
+                className={cn(
+                  'w-4 shrink-0 text-center text-xs font-bold tabular-nums',
+                  rankClass(row.rank),
+                )}
+              >
+                {row.rank}
+              </span>
+            )}
             <Avatar className="size-9">
               <AvatarFallback className="text-xs">
                 {row.name.trim().slice(0, 1).toUpperCase() || '?'}

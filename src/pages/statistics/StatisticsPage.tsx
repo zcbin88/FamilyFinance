@@ -17,8 +17,35 @@ import TrendChart from '@/components/stats/TrendChart'
 import { useLedgerContext } from '@/context/LedgerProvider'
 import { useCurrentFamily } from '@/hooks/useFamily'
 import { useTransactions } from '@/hooks/useTransactions'
+import { useMonthlyTrend } from '@/hooks/useStats'
 import { formatMoney } from '@/lib/money'
 import { cn } from '@/lib/utils'
+
+/** 环比提示：本月 vs 上月，颜色表达「好 / 坏」而非单纯的涨跌 */
+function DeltaLabel({
+  current,
+  prev,
+  goodWhenDown = false,
+}: {
+  current?: number
+  prev?: number
+  goodWhenDown?: boolean
+}) {
+  if (current == null || prev == null || prev === 0) return null
+  const delta = ((current - prev) / prev) * 100
+  if (!Number.isFinite(delta)) return null
+  if (delta === 0) {
+    return <p className="mt-0.5 text-xs tabular-nums text-muted-foreground">较上月持平</p>
+  }
+  const up = delta > 0
+  const good = goodWhenDown ? !up : up
+  const arrow = up ? '↑' : '↓'
+  return (
+    <p className={cn('mt-0.5 text-xs tabular-nums', good ? 'text-green-600' : 'text-red-600')}>
+      较上月 {arrow} {Math.abs(delta).toFixed(1)}%
+    </p>
+  )
+}
 
 export default function StatisticsPage() {
   const { data: family } = useCurrentFamily()
@@ -28,6 +55,7 @@ export default function StatisticsPage() {
   const [monthOpen, setMonthOpen] = useState(false)
 
   const { data: result, isLoading } = useTransactions(currentLedger?.id, month)
+  const { data: trend } = useMonthlyTrend(currentLedger?.id, 6)
 
   const monthExpense = result?.transactions
     .filter((t) => t.type === 'expense')
@@ -35,6 +63,10 @@ export default function StatisticsPage() {
   const monthIncome = result?.transactions
     .filter((t) => t.type === 'income')
     .reduce((s, t) => s + t.amount, 0) ?? 0
+
+  // 环比：趋势序列里最后两个月 = 本月 / 上月（与 TrendChart 共用同一缓存）
+  const currentStat = trend?.at(-1)
+  const prevStat = trend?.at(-2)
 
   function changeMonth(delta: number) {
     const [y, m] = month.split('-').map(Number)
@@ -82,6 +114,7 @@ export default function StatisticsPage() {
             <p className="text-[clamp(0.8125rem,3.8vw,1.25rem)] leading-tight font-bold break-all tabular-nums text-green-600">
               -{isLoading ? '…' : formatMoney(monthExpense)}
             </p>
+            <DeltaLabel current={currentStat?.expense} prev={prevStat?.expense} goodWhenDown />
           </CardContent>
         </Card>
         <Card className="gap-1.5 py-3 [--card-spacing:--spacing(2)] sm:gap-4 sm:py-4 sm:[--card-spacing:--spacing(4)]">
@@ -92,6 +125,7 @@ export default function StatisticsPage() {
             <p className="text-[clamp(0.8125rem,3.8vw,1.25rem)] leading-tight font-bold break-all tabular-nums text-red-600">
               +{isLoading ? '…' : formatMoney(monthIncome)}
             </p>
+            <DeltaLabel current={currentStat?.income} prev={prevStat?.income} />
           </CardContent>
         </Card>
         <Card className="gap-1.5 py-3 [--card-spacing:--spacing(2)] sm:gap-4 sm:py-4 sm:[--card-spacing:--spacing(4)]">
@@ -107,6 +141,10 @@ export default function StatisticsPage() {
             >
               {isLoading ? '…' : formatMoney(monthIncome - monthExpense)}
             </p>
+            <DeltaLabel
+              current={(currentStat?.income ?? 0) - (currentStat?.expense ?? 0)}
+              prev={(prevStat?.income ?? 0) - (prevStat?.expense ?? 0)}
+            />
           </CardContent>
         </Card>
       </div>

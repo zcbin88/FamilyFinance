@@ -11,6 +11,10 @@ import DashboardPage from '@/pages/dashboard/DashboardPage'
 import OnboardingPage from '@/pages/onboarding/OnboardingPage'
 import SettingsPage from '@/pages/settings/SettingsPage'
 import ProfilePage from '@/pages/settings/ProfilePage'
+import FamilyPage from '@/pages/settings/FamilyPage'
+import MembersPage from '@/pages/settings/MembersPage'
+import LedgersPage from '@/pages/settings/LedgersPage'
+import CategoriesPage from '@/pages/settings/CategoriesPage'
 import StatisticsPage from '@/pages/statistics/StatisticsPage'
 import TransactionsPage from '@/pages/transactions/TransactionsPage'
 import TransactionSearchPage from '@/pages/transactions/TransactionSearchPage'
@@ -82,6 +86,10 @@ export default function App() {
             <Route path="transactions/search" element={<TransactionSearchPage />} />
             <Route path="statistics" element={<StatisticsPage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="settings/family" element={<FamilyPage />} />
+            <Route path="settings/members" element={<MembersPage />} />
+            <Route path="settings/ledgers" element={<LedgersPage />} />
+            <Route path="settings/categories" element={<CategoriesPage />} />
           </Route>
 
           {/* 账号信息不依赖家庭，可在无家庭时访问 */}
