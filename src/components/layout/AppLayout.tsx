@@ -63,6 +63,8 @@ export default function AppLayout() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const backTo = SUB_PAGES[pathname]
+  // 我的页不需要账本切换和搜索入口
+  const isSettings = pathname === '/settings'
 
   return (
     <IonPage>
@@ -75,14 +77,16 @@ export default function AppLayout() {
               </IonButton>
             </IonButtons>
           ) : (
-            <IonButtons slot="start">
-              <LedgerSwitcher />
-            </IonButtons>
+            !isSettings && (
+              <IonButtons slot="start">
+                <LedgerSwitcher />
+              </IonButtons>
+            )
           )}
           <IonTitle className="text-base font-semibold">
             {PAGE_TITLES[pathname] ?? '家庭银行'}
           </IonTitle>
-          {!backTo && (
+          {!backTo && !isSettings && (
             <IonButtons slot="end">
               <IonButton onClick={() => navigate('/transactions/search')} aria-label="搜索">
                 <IonIcon slot="icon-only" icon={searchOutline} />
