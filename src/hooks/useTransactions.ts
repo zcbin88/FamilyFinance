@@ -333,7 +333,7 @@ export function useCreateTransaction(familyId?: string | null, ledgerId?: string
   })
 }
 
-/** 更新交易（仅记账人本人可改，RLS 保证） */
+/** 更新交易（家庭成员均可改，RLS 保证） */
 export function useUpdateTransaction() {
   const qc = useQueryClient()
   return useMutation({
@@ -341,8 +341,14 @@ export function useUpdateTransaction() {
       id,
       ...patch
     }: { id: string } & Partial<Omit<TransactionInput, 'ledger_id'>>) => {
-      const { error } = await supabase.from('transactions').update(patch).eq('id', id)
+      const { data, error } = await supabase
+        .from('transactions')
+        .update(patch)
+        .eq('id', id)
+        .select('id')
       if (error) throw error
+      // RLS 拒绝或账单不存在时 0 行受影响，需显式报错，避免「假成功」
+      if (!data || data.length === 0) throw new Error('账单不存在或已被删除')
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: transactionKeys.all }),
   })
@@ -353,8 +359,13 @@ export function useDeleteTransaction() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('transactions').delete().eq('id', id)
+      const { data, error } = await supabase
+        .from('transactions')
+        .delete()
+        .eq('id', id)
+        .select('id')
       if (error) throw error
+      if (!data || data.length === 0) throw new Error('账单不存在或已被删除')
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: transactionKeys.all }),
   })
