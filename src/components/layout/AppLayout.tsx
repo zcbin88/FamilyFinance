@@ -66,13 +66,19 @@ export default function AppLayout() {
   // 我的页不需要账本切换和搜索入口
   const isSettings = pathname === '/settings'
 
+  function goBack() {
+    // 有历史则真正回退上一页（POP）；直达子页（如刷新 / 分享链接）则回到所属 Tab
+    if (window.history.state?.idx > 0) navigate(-1)
+    else navigate(backTo, { replace: true })
+  }
+
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
           {backTo ? (
             <IonButtons slot="start">
-              <IonButton onClick={() => navigate(backTo)} aria-label="返回">
+              <IonButton onClick={goBack} aria-label="返回">
                 <IonIcon slot="icon-only" icon={arrowBack} />
               </IonButton>
             </IonButtons>
@@ -114,7 +120,7 @@ export default function AppLayout() {
               key={tab.path}
               tab={tab.path}
               selected={isActive(pathname, tab.path, tab.end)}
-              onClick={() => navigate(tab.path)}
+              onClick={() => navigate(tab.path, { replace: true })}
               // IonTabBar 只接受 ion-tab-button，普通 div 占位会被丢弃，
               // 因此用相邻两个 Tab 的 margin 撑出中间凸起按钮的空档
               style={{

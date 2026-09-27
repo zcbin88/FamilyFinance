@@ -26,7 +26,7 @@ export default function TransactionFormPage() {
 
   function goBack() {
     // 有历史则返回来源页，否则回明细
-    if (window.history.length > 1) navigate(-1)
+    if (window.history.state?.idx > 0) navigate(-1)
     else navigate('/transactions', { replace: true })
   }
 
